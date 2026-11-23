@@ -247,8 +247,13 @@
                             <button type="button" onclick="window.app.setSnapshotRange(0)" id="range-btn-0" class="px-2 py-1 rounded-lg text-[#8C8275]">全部</button>
                         </div>
                     </div>
-                    <div class="relative h-48 w-full">
-                        <canvas id="asset-snapshots-chart"></canvas>
+                    <div class="relative w-full" style="height: 200px;">
+                        <canvas id="asset-snapshots-chart" style="display: block; width: 100%; height: 200px;"></canvas>
+                        <div id="snapshot-empty-overlay" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-[#FAF8F5]/85 dark:bg-[#25221F]/85 rounded-xl text-center p-4">
+                            <i class="fa-solid fa-chart-line text-xl text-[#8C8275] mb-1.5"></i>
+                            <p class="text-xs font-semibold text-[#5C5346] dark:text-[#D6CFC5]">尚無週期快照資料</p>
+                            <p class="text-[11px] text-[#8C8275] mt-0.5">點擊上方「紀錄本期快照」即可開始繪製趨勢曲線</p>
+                        </div>
                     </div>
                     <!-- 歷史快照清單展開鈕 -->
                     <div class="mt-3 pt-2.5 border-t border-[#EAE4D9] dark:border-[#36312C] flex items-center justify-between">
@@ -279,7 +284,7 @@
                 <div class="bg-[#FAF8F5] dark:bg-[#25221F] rounded-2xl p-4 border border-[#E2DBD0] dark:border-[#38332E] muji-card">
                     <h3 class="text-sm font-semibold text-[#2C2926] dark:text-[#F3EFEA] mb-0.5">近 6 個月淨流動資金變化</h3>
                     <p class="text-[11px] text-[#8C8275] mb-3">每月盤點總資金趨勢追蹤</p>
-                    <div class="relative h-52 w-full">
+                    <div class="relative w-full" style="height: 208px;">
                         <canvas id="monthly-cash-trend-chart"></canvas>
                     </div>
                 </div>
@@ -290,7 +295,7 @@
                         <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#EFECE6] dark:bg-[#322E2A] text-[#5C5346] dark:text-[#C7BEB2]">較上月增減</span>
                     </div>
                     <p class="text-[11px] text-[#8C8275] mb-3">正值代表該月淨儲蓄增加，負值代表淨現金減少</p>
-                    <div class="relative h-52 w-full">
+                    <div class="relative w-full" style="height: 208px;">
                         <canvas id="monthly-cash-diff-chart"></canvas>
                     </div>
                 </div>
@@ -298,7 +303,7 @@
                 <div class="bg-[#FAF8F5] dark:bg-[#25221F] rounded-2xl p-4 border border-[#E2DBD0] dark:border-[#38332E] muji-card">
                     <h3 class="text-sm font-semibold text-[#2C2926] dark:text-[#F3EFEA] mb-0.5">整體資產配置佔比</h3>
                     <p class="text-[11px] text-[#8C8275] mb-3">銀行流動現金 vs. 股票投資部位</p>
-                    <div class="relative h-52 w-full">
+                    <div class="relative w-full" style="height: 208px;">
                         <canvas id="asset-allocation-chart"></canvas>
                     </div>
                 </div>
@@ -720,6 +725,9 @@
             let snapshotRange = 6;
             let fixedDirectoryHandle = null;
 
+            // 報價快取（避免短時間重複查詢等待）
+            const quoteMemoryCache = new Map();
+
             // 計算機狀態
             let calcCurrent = '0';
             let calcPrev = null;
@@ -873,8 +881,14 @@
                 });
 
                 if (tab === 'accounts') renderAccountsTab();
-                if (tab === 'stocks') renderStocksTab();
-                if (tab === 'trends') renderTrendCharts();
+                if (tab === 'stocks') {
+                    renderStocksTab();
+                    // 確保分頁從 hidden 顯示後重新計算容器寬高並繪圖
+                    requestAnimationFrame(() => renderSnapshotChart());
+                }
+                if (tab === 'trends') {
+                    requestAnimationFrame(() => renderTrendCharts());
+                }
                 if (tab === 'settings') {
                     updateAutoBackupUI();
                     updateCycleSettingPreview();
@@ -1274,7 +1288,7 @@
                 showToast('已刪除該帳戶');
             }
 
-            // ================= 股票資產計算與查詢 =================
+            // ================= 股票資產計算與高速平行報價查詢 =================
             function calcPortfolioTotals() {
                 const rate = Number(state.usdTwdRate) || 32.5;
                 let totalCostTwd = 0;
@@ -1369,46 +1383,111 @@
                 renderSnapshotHistoryList();
             }
 
-            async function fetchStockQuote(rawSymbol) {
+            // 帶逾時控制的快速 fetch
+            async function fetchWithTimeout(url, timeoutMs = 2800) {
+                const controller = new AbortController();
+                const timer = setTimeout(() => controller.abort(), timeoutMs);
+                try {
+                    const resp = await fetch(url, { signal: controller.signal });
+                    clearTimeout(timer);
+                    return resp;
+                } catch (e) {
+                    clearTimeout(timer);
+                    throw e;
+                }
+            }
+
+            // 多通道競速抓取報價（誰先回來就用誰，最慢不超過 3 秒）
+            async function fetchStockQuote(rawSymbol, bypassCache = false) {
                 const sym = (rawSymbol || '').trim().toUpperCase();
                 if (!sym) return null;
 
+                // 10 分鐘內記憶體快取命中直接秒回
+                if (!bypassCache && quoteMemoryCache.has(sym)) {
+                    const cached = quoteMemoryCache.get(sym);
+                    if (Date.now() - cached.ts < 10 * 60 * 1000) {
+                        return cached.data;
+                    }
+                }
+
                 const isTw = /^\d{4,6}[A-Z]?$/.test(sym);
                 const yahooSym = isTw ? `${sym}.TW` : sym;
+                const yahooTwoSym = isTw ? `${sym}.TWO` : null;
+
+                const parseYahooPayload = (data) => {
+                    const result = data?.chart?.result?.[0];
+                    if (!result) throw new Error('No result');
+                    const meta = result.meta || {};
+                    const closes = (result.indicators?.quote?.[0]?.close || []).filter(v => v !== null && v !== undefined);
+                    let closePrice = meta.regularMarketPrice;
+                    if (meta.marketState === 'REGULAR' && closes.length >= 2) {
+                        closePrice = closes[closes.length - 2];
+                    } else if (closes.length >= 1) {
+                        closePrice = closes[closes.length - 1];
+                    }
+                    if (!closePrice) throw new Error('No price');
+                    return {
+                        symbol: sym,
+                        name: FALLBACK_QUOTES[sym]?.name || meta.shortName || sym,
+                        price: Number(closePrice.toFixed(2)),
+                        currency: isTw ? 'TWD' : (meta.currency || 'USD')
+                    };
+                };
+
+                const candidates = [];
+                const targetUrls = [
+                    `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSym)}?interval=1d&range=5d`
+                ];
+                if (yahooTwoSym) {
+                    targetUrls.push(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooTwoSym)}?interval=1d&range=5d`);
+                }
+
+                // 同時向多個高速 CORS 通道發起競速請求
+                targetUrls.forEach(targetUrl => {
+                    candidates.push(
+                        fetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(targetUrl)}`, 2800)
+                            .then(r => r.json())
+                            .then(parseYahooPayload)
+                    );
+                    candidates.push(
+                        fetchWithTimeout(`https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`, 2800)
+                            .then(r => r.json())
+                            .then(parseYahooPayload)
+                    );
+                });
+
+                // 台股額外加入 TWSE 官方即時收盤介面作為高速通道
+                if (isTw) {
+                    const twseUrl = `https://mis.twse.com.tw/stock/api/getStockInfo.jsp?ex_ch=tse_${sym}.tw|otc_${sym}.tw&json=1&delay=0`;
+                    candidates.push(
+                        fetchWithTimeout(`https://corsproxy.io/?${encodeURIComponent(twseUrl)}`, 2600)
+                            .then(r => r.json())
+                            .then(data => {
+                                const info = (data?.msgArray || []).find(item => item && (Number(item.z) > 0 || Number(item.y) > 0));
+                                if (!info) throw new Error('No TWSE item');
+                                const price = Number(info.z) > 0 ? Number(info.z) : Number(info.y);
+                                return {
+                                    symbol: sym,
+                                    name: info.n || FALLBACK_QUOTES[sym]?.name || sym,
+                                    price: Number(price.toFixed(2)),
+                                    currency: 'TWD'
+                                };
+                            })
+                    );
+                }
 
                 try {
-                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSym)}?interval=1d&range=5d`;
-                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                    const resp = await fetch(proxyUrl);
-                    const wrapped = await resp.json();
-                    const data = JSON.parse(wrapped.contents);
-                    const result = data?.chart?.result?.[0];
-                    if (result) {
-                        const meta = result.meta || {};
-                        const closes = (result.indicators?.quote?.[0]?.close || []).filter(v => v !== null && v !== undefined);
-                        let closePrice = meta.regularMarketPrice;
-                        if (meta.marketState === 'REGULAR' && closes.length >= 2) {
-                            closePrice = closes[closes.length - 2];
-                        } else if (closes.length >= 1) {
-                            closePrice = closes[closes.length - 1];
-                        }
-                        if (closePrice) {
-                            return {
-                                symbol: sym,
-                                name: FALLBACK_QUOTES[sym]?.name || meta.shortName || sym,
-                                price: Number(closePrice.toFixed(2)),
-                                currency: isTw ? 'TWD' : (meta.currency || 'USD')
-                            };
-                        }
-                    }
+                    const fastest = await Promise.any(candidates);
+                    quoteMemoryCache.set(sym, { data: fastest, ts: Date.now() });
+                    return fastest;
                 } catch (e) {
-                    console.warn('即時查詢切換備援報價:', e);
+                    if (FALLBACK_QUOTES[sym]) {
+                        const fallback = { symbol: sym, ...FALLBACK_QUOTES[sym] };
+                        quoteMemoryCache.set(sym, { data: fallback, ts: Date.now() });
+                        return fallback;
+                    }
+                    return null;
                 }
-
-                if (FALLBACK_QUOTES[sym]) {
-                    return { symbol: sym, ...FALLBACK_QUOTES[sym] };
-                }
-                return null;
             }
 
             async function fetchQuoteForModal() {
@@ -1422,7 +1501,7 @@
                 }
                 btn.disabled = true;
                 btn.textContent = '查詢中...';
-                const quote = await fetchStockQuote(sym);
+                const quote = await fetchStockQuote(sym, true);
                 btn.disabled = false;
                 btn.textContent = '查收盤';
 
@@ -1445,23 +1524,31 @@
                 }
                 const btn = document.getElementById('btn-refresh-quotes');
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 更新中...';
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 平行更新中...';
+
+                // 全部持股同時平行發起查詢，大幅縮短等待時間
+                const results = await Promise.all(
+                    state.stocks.map(async (s) => {
+                        const q = await fetchStockQuote(s.symbol, true);
+                        return { stock: s, quote: q };
+                    })
+                );
 
                 let updatedCount = 0;
-                for (const s of state.stocks) {
-                    const q = await fetchStockQuote(s.symbol);
-                    if (q && q.price) {
-                        s.price = q.price;
-                        if (!s.name && q.name) s.name = q.name;
+                results.forEach(({ stock, quote }) => {
+                    if (quote && quote.price) {
+                        stock.price = quote.price;
+                        if (!stock.name && quote.name) stock.name = quote.name;
                         updatedCount++;
                     }
-                }
+                });
+
                 saveState();
                 renderStocksTab();
                 renderSummary();
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-rotate"></i> 全部更新收盤價';
-                showToast(`已更新 ${updatedCount} 檔持股最近收盤價`);
+                showToast(`已極速更新 ${updatedCount} 檔持股收盤價`);
             }
 
             function openStockModal(stockId = null) {
@@ -1608,37 +1695,56 @@
 
             function renderSnapshotChart() {
                 const canvas = document.getElementById('asset-snapshots-chart');
+                const overlay = document.getElementById('snapshot-empty-overlay');
                 const countLabel = document.getElementById('snapshot-count-label');
-                if (countLabel) countLabel.textContent = `已紀錄 ${state.snapshots.length} 期資產快照`;
+                const snapshots = Array.isArray(state.snapshots) ? state.snapshots : [];
+
+                if (countLabel) countLabel.textContent = `已紀錄 ${snapshots.length} 期資產快照`;
                 if (!canvas) return;
 
                 if (snapshotChartInstance) {
                     snapshotChartInstance.destroy();
+                    snapshotChartInstance = null;
                 }
 
-                const list = snapshotRange > 0 ? state.snapshots.slice(-snapshotRange) : state.snapshots;
+                const list = snapshotRange > 0 ? snapshots.slice(-snapshotRange) : snapshots;
+                if (overlay) {
+                    overlay.classList.toggle('hidden', list.length > 0);
+                }
+
                 const isDark = state.theme === 'dark';
                 const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(92,83,70,0.1)';
                 const textColor = isDark ? '#A3998B' : '#7A7064';
 
+                const labels = list.length ? list.map(s => (s.date || '').slice(5)) : [''];
+                const withDivData = list.length ? list.map(s => Number(s.withDivTwd) || 0) : [0];
+                const marketData = list.length ? list.map(s => Number(s.marketTwd) || 0) : [0];
+                const pointRadius = list.length === 1 ? 6 : 4;
+
                 snapshotChartInstance = new Chart(canvas, {
                     type: 'line',
                     data: {
-                        labels: list.length ? list.map(s => s.date.slice(5)) : ['尚無快照'],
+                        labels,
                         datasets: [
                             {
                                 label: '含息總資產',
-                                data: list.length ? list.map(s => s.withDivTwd) : [0],
+                                data: withDivData,
                                 borderColor: '#7F1D1D',
-                                backgroundColor: 'rgba(127, 29, 29, 0.1)',
+                                backgroundColor: 'rgba(127, 29, 29, 0.12)',
+                                pointBackgroundColor: '#7F1D1D',
+                                pointRadius,
+                                pointHoverRadius: 6,
                                 borderWidth: 2.5,
                                 tension: 0.3,
                                 fill: true
                             },
                             {
                                 label: '純帳面市值',
-                                data: list.length ? list.map(s => s.marketTwd) : [0],
+                                data: marketData,
                                 borderColor: '#5B7052',
+                                pointBackgroundColor: '#5B7052',
+                                pointRadius,
+                                pointHoverRadius: 6,
                                 borderDash: [4, 4],
                                 borderWidth: 2,
                                 tension: 0.3,
@@ -1649,14 +1755,27 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
+                        animation: { duration: 250 },
                         plugins: {
                             legend: {
                                 labels: { color: textColor, font: { size: 11 } }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => `${ctx.dataset.label}: NT$ ${Math.round(ctx.parsed.y || 0).toLocaleString('zh-TW')}`
+                                }
                             }
                         },
                         scales: {
                             x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
-                            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
+                            y: {
+                                grid: { color: gridColor },
+                                ticks: {
+                                    color: textColor,
+                                    font: { size: 10 },
+                                    callback: (val) => Number(val).toLocaleString('zh-TW')
+                                }
+                            }
                         }
                     }
                 });
@@ -1822,7 +1941,7 @@
                 }
             }
 
-            // ================= 管理備份、起始日、Email 排程 =================
+            // ================= 管理備份與起始日設定 =================
             function populateCycleStartDayOptions() {
                 const select = document.getElementById('cycle-start-day-select');
                 if (!select) return;

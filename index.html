@@ -31,11 +31,9 @@
     <!-- Chart.js 圖表庫 -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
-        /* 全站基準字體設定為標準清晰無襯線字級 */
         html {
             font-size: 16px;
         }
-        /* 日式無印柔和配色與清晰現代無襯線字體 */
         body, button, input, select, textarea {
             font-family: 'Noto Sans TC', 'Inter', -apple-system, BlinkMacSystemFont, 'PingFang TC', 'Microsoft JhengHei', sans-serif;
             letter-spacing: 0.01em;
@@ -53,7 +51,6 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .pb-safe { padding-bottom: env(safe-area-inset-bottom, 16px); }
         .pt-safe { padding-top: env(safe-area-inset-top, 12px); }
-        /* 無印牛皮紙手帳卡片陰影 */
         .muji-card {
             box-shadow: 0 2px 10px -2px rgba(92, 83, 70, 0.06);
         }
@@ -71,7 +68,6 @@
         <header class="sticky top-0 z-30 bg-[#F7F5F0]/90 dark:bg-[#1E1C1A]/90 backdrop-blur-md border-b border-[#E4DFD5] dark:border-[#332F2B] px-4 py-3 pt-safe">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2.5">
-                    <!-- 無印標誌酒紅印章風圖示 -->
                     <div class="w-9 h-9 rounded-xl bg-[#7F1D1D] dark:bg-[#991B1B] flex items-center justify-center text-[#FAF8F5] shadow-xs">
                         <i class="fa-solid fa-book-open text-sm"></i>
                     </div>
@@ -87,7 +83,10 @@
                         <button type="button" onclick="window.app.changeMonth(-1)" aria-label="上個月" class="w-7 h-7 rounded-lg flex items-center justify-center text-[#5C5346] dark:text-[#D6CFC5] hover:bg-[#FAF8F5] dark:hover:bg-[#383430] transition active:scale-95">
                             <i class="fa-solid fa-chevron-left text-xs"></i>
                         </button>
-                        <span id="current-month-label" class="px-2 text-xs font-semibold text-[#3E3A36] dark:text-[#EAE5DC] tabular-nums select-none">2026-11</span>
+                        <div class="px-2 text-center select-none">
+                            <div id="current-month-label" class="text-xs font-semibold text-[#3E3A36] dark:text-[#EAE5DC] tabular-nums leading-tight">2026-11</div>
+                            <div id="current-cycle-sub" class="text-[9px] text-[#8C8275] tabular-nums leading-tight">01日~30日</div>
+                        </div>
                         <button type="button" onclick="window.app.changeMonth(1)" aria-label="下個月" class="w-7 h-7 rounded-lg flex items-center justify-center text-[#5C5346] dark:text-[#D6CFC5] hover:bg-[#FAF8F5] dark:hover:bg-[#383430] transition active:scale-95">
                             <i class="fa-solid fa-chevron-right text-xs"></i>
                         </button>
@@ -104,7 +103,7 @@
 
             <!-- ================= 分頁 1：帳戶盤點（日常總額） ================= -->
             <section id="tab-accounts" class="space-y-4">
-                <!-- 本月淨流動資金與跨頁總資產總覽卡（無印牛皮紙與原木質感） -->
+                <!-- 本月淨流動資金與跨頁總資產總覽卡 -->
                 <div class="rounded-2xl bg-[#EFECE4] dark:bg-[#292622] text-[#3E3A36] dark:text-[#EAE5DC] p-5 muji-card border border-[#DDD6C8] dark:border-[#3D3832] relative overflow-hidden">
                     <div class="flex items-center justify-between mb-1">
                         <span class="text-xs font-semibold text-[#6E6459] dark:text-[#B5ABA0] flex items-center gap-1.5">
@@ -114,6 +113,11 @@
                         <button type="button" onclick="window.app.copyPreviousMonthBalances()" class="text-[11px] font-semibold bg-[#FAF8F5] dark:bg-[#36322D] hover:bg-white text-[#5C5346] dark:text-[#D6CFC5] px-2.5 py-1 rounded-lg border border-[#DCD5C7] dark:border-[#4A443D] transition flex items-center gap-1 active:scale-95">
                             <i class="fa-regular fa-copy text-[10px]"></i> 帶入上月餘額
                         </button>
+                    </div>
+
+                    <div id="cycle-period-badge" class="inline-flex items-center gap-1.5 text-[11px] text-[#6E6459] dark:text-[#B5ABA0] bg-[#FAF8F5]/80 dark:bg-[#1F1D1A]/80 px-2.5 py-0.5 rounded-md border border-[#DFD8CA] dark:border-[#38342F] mt-1 tabular-nums">
+                        <i class="fa-regular fa-calendar text-[10px] text-[#7F1D1D] dark:text-[#E07A7A]"></i>
+                        <span>計算週期：2026-11-01 ～ 2026-11-30（月底結算）</span>
                     </div>
 
                     <div id="summary-net-cash" class="text-3xl font-semibold tracking-tight text-[#2C2926] dark:text-[#FAF8F5] tabular-nums my-1.5">NT$ 0</div>
@@ -139,7 +143,7 @@
                     </div>
                 </div>
 
-                <!-- 本月財務備忘錄 (Memo) 手帳便利貼 -->
+                <!-- 本月財務備忘錄 (Memo) -->
                 <div class="bg-[#FAF8F5] dark:bg-[#25221F] border border-[#E2DBD0] dark:border-[#38332E] rounded-2xl p-3.5 muji-card">
                     <div class="flex items-center justify-between mb-1.5">
                         <label for="monthly-memo-input" class="text-xs font-semibold text-[#5C5346] dark:text-[#D6CFC5] flex items-center gap-1.5">
@@ -149,7 +153,6 @@
                         <span id="memo-save-status" class="text-[10px] text-[#8C8275]">自動儲存</span>
                     </div>
                     <textarea id="monthly-memo-input" rows="2" oninput="window.app.saveMonthlyMemo(this.value)" placeholder="寫下給自己的提醒（例如：本月預計繳保費 18,000、信用卡大筆刷卡、旅行預算...）" class="w-full bg-[#F4F1EA] dark:bg-[#1D1B18] text-xs text-[#3E3A36] dark:text-[#EAE5DC] placeholder-[#A3998B] rounded-xl p-2.5 border border-[#E4DDD1] dark:border-[#36312C] focus:outline-none focus:border-[#8C8275] resize-none leading-relaxed"></textarea>
-                    <!-- 快捷標籤 -->
                     <div class="flex flex-wrap gap-1.5 mt-2">
                         <button type="button" onclick="window.app.appendMemoTag('大筆刷卡')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#EFECE6] dark:bg-[#302C28] text-[#5C5346] dark:text-[#C7BEB2] border border-[#E0DAD0] dark:border-[#3F3A34] hover:bg-[#E5E0D8] transition">+ 大筆刷卡</button>
                         <button type="button" onclick="window.app.appendMemoTag('保費/稅金')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#EFECE6] dark:bg-[#302C28] text-[#5C5346] dark:text-[#C7BEB2] border border-[#E0DAD0] dark:border-[#3F3A34] hover:bg-[#E5E0D8] transition">+ 保費/稅金</button>
@@ -162,11 +165,16 @@
                 <div class="flex items-center justify-between pt-1">
                     <div>
                         <h2 class="text-sm font-semibold text-[#2C2926] dark:text-[#F3EFEA]">各家帳戶總額盤點</h2>
-                        <p class="text-[11px] text-[#8C8275]">點擊帳戶直接填寫當下餘額，免記流水帳</p>
+                        <p id="account-list-subtitle" class="text-[11px] text-[#8C8275]">點擊帳戶直接填寫當下餘額，免記流水帳</p>
                     </div>
-                    <button type="button" onclick="window.app.openAccountModal()" class="text-xs font-semibold text-[#5C5346] dark:text-[#EAE5DC] bg-[#FAF8F5] dark:bg-[#2A2724] hover:bg-[#EFECE6] px-3 py-1.5 rounded-xl border border-[#DCD5C7] dark:border-[#3D3832] transition flex items-center gap-1 active:scale-95">
-                        <i class="fa-solid fa-plus text-[10px]"></i> 新增帳戶
-                    </button>
+                    <div class="flex items-center gap-1.5">
+                        <button type="button" id="btn-toggle-reorder" onclick="window.app.toggleAccountReorder()" class="text-xs font-semibold text-[#5C5346] dark:text-[#D6CFC5] bg-[#EFECE6] dark:bg-[#2A2724] hover:bg-[#E5E0D8] px-2.5 py-1.5 rounded-xl border border-[#DCD5C7] dark:border-[#3D3832] transition flex items-center gap-1 active:scale-95">
+                            <i class="fa-solid fa-arrows-up-down text-[10px]"></i> 調整順序
+                        </button>
+                        <button type="button" onclick="window.app.openAccountModal()" class="text-xs font-semibold text-[#5C5346] dark:text-[#EAE5DC] bg-[#FAF8F5] dark:bg-[#2A2724] hover:bg-[#EFECE6] px-2.5 py-1.5 rounded-xl border border-[#DCD5C7] dark:border-[#3D3832] transition flex items-center gap-1 active:scale-95">
+                            <i class="fa-solid fa-plus text-[10px]"></i> 新增帳戶
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 帳戶列表容器 -->
@@ -183,7 +191,7 @@
 
             <!-- ================= 分頁 2：股票資產 ================= -->
             <section id="tab-stocks" class="hidden space-y-4">
-                <!-- 股票總資產卡片（無印亞麻與抹茶/酒紅配色） -->
+                <!-- 股票總資產卡片 -->
                 <div class="rounded-2xl bg-[#EFECE4] dark:bg-[#292622] text-[#3E3A36] dark:text-[#EAE5DC] p-5 muji-card border border-[#DDD6C8] dark:border-[#3D3832]">
                     <div class="flex items-center justify-between mb-1">
                         <span class="text-xs font-semibold text-[#6E6459] dark:text-[#B5ABA0] flex items-center gap-1.5">
@@ -277,6 +285,17 @@
                 </div>
 
                 <div class="bg-[#FAF8F5] dark:bg-[#25221F] rounded-2xl p-4 border border-[#E2DBD0] dark:border-[#38332E] muji-card">
+                    <div class="flex items-center justify-between mb-0.5">
+                        <h3 class="text-sm font-semibold text-[#2C2926] dark:text-[#F3EFEA]">淨流動資金每月差異值曲線</h3>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#EFECE6] dark:bg-[#322E2A] text-[#5C5346] dark:text-[#C7BEB2]">較上月增減</span>
+                    </div>
+                    <p class="text-[11px] text-[#8C8275] mb-3">正值代表該月淨儲蓄增加，負值代表淨現金減少</p>
+                    <div class="relative h-52 w-full">
+                        <canvas id="monthly-cash-diff-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-[#FAF8F5] dark:bg-[#25221F] rounded-2xl p-4 border border-[#E2DBD0] dark:border-[#38332E] muji-card">
                     <h3 class="text-sm font-semibold text-[#2C2926] dark:text-[#F3EFEA] mb-0.5">整體資產配置佔比</h3>
                     <p class="text-[11px] text-[#8C8275] mb-3">銀行流動現金 vs. 股票投資部位</p>
                     <div class="relative h-52 w-full">
@@ -287,6 +306,37 @@
 
             <!-- ================= 分頁 4：管理備份 ================= -->
             <section id="tab-settings" class="hidden space-y-4">
+                <!-- 每月計算起始日設定（結算日固定月底） -->
+                <div class="bg-[#FAF8F5] dark:bg-[#25221F] rounded-2xl p-4 border border-[#E2DBD0] dark:border-[#38332E] muji-card space-y-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm font-semibold text-[#2C2926] dark:text-[#F3EFEA] flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar-check text-[#7F1D1D] dark:text-[#E07A7A]"></i>
+                                每月計算起始日設定
+                            </h3>
+                            <p class="text-[11px] text-[#8C8275] mt-0.5">自訂每月開始計算的日期（例如發薪日 5 號），結算日統一為當月月底</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between bg-[#F2EFE8] dark:bg-[#1B1916] p-3 rounded-xl border border-[#DFD8CA] dark:border-[#36312C]">
+                        <div>
+                            <div class="text-xs font-semibold text-[#3E3A36] dark:text-[#EAE5DC]">每月起始日（1～28 號）</div>
+                            <div id="cycle-setting-preview" class="text-[11px] text-[#5B7052] dark:text-[#8FB082] font-semibold mt-0.5 tabular-nums">目前週期：每月 1 號 ～ 月底</div>
+                        </div>
+                        <select id="cycle-start-day-select" onchange="window.app.setCycleStartDay(this.value)" class="px-3 py-2 rounded-xl bg-[#FAF8F5] dark:bg-[#2A2724] text-xs font-semibold text-[#2C2926] dark:text-[#F3EFEA] border border-[#DCD5C7] dark:border-[#453F39] focus:outline-none">
+                            <option value="1">每月 1 號</option>
+                            <option value="5">每月 5 號</option>
+                            <option value="10">每月 10 號</option>
+                            <option value="15">每月 15 號</option>
+                            <option value="20">每月 20 號</option>
+                            <option value="25">每月 25 號</option>
+                        </select>
+                    </div>
+                    <p class="text-[10px] text-[#8C8275] leading-relaxed">
+                        ※ 規則說明：若設定每月 5 號為起始日，則每月 1～4 號開啟 APP 時會先停留在上個週期；滿 5 號起自動切換為當月「5 號 ～ 月底」計算週期。
+                    </p>
+                </div>
+
                 <!-- 手動匯出與還原 -->
                 <div class="bg-[#FAF8F5] dark:bg-[#25221F] rounded-2xl p-4 border border-[#E2DBD0] dark:border-[#38332E] muji-card space-y-3">
                     <div>
@@ -641,6 +691,7 @@
             let state = {
                 theme: 'light',
                 usdTwdRate: 32.50,
+                cycleStartDay: 1,
                 accounts: [
                     { id: 'acc_1', name: '主力銀行活存', type: 'asset', category: '日常活存' },
                     { id: 'acc_2', name: '高利數位帳戶', type: 'asset', category: '高利數位帳戶' },
@@ -660,14 +711,14 @@
                 }
             };
 
-            let fixedDirectoryHandle = null;
             let activeTab = 'accounts';
+            let isAccountReorderMode = false;
             let activeDrawerAccountId = null;
             let editingAccountId = null;
             let selectedAccType = 'asset';
             let editingStockId = null;
-            let snapshotChartRange = 6;
-            let snapshotHistoryOpen = false;
+            let snapshotRange = 6;
+            let fixedDirectoryHandle = null;
 
             // 計算機狀態
             let calcCurrent = '0';
@@ -675,41 +726,11 @@
             let calcOperator = null;
             let calcResetNext = false;
 
-            // Chart.js 實例
-            let snapshotsChartInstance = null;
-            let monthlyTrendChartInstance = null;
+            // 圖表實例
+            let snapshotChartInstance = null;
+            let cashTrendChartInstance = null;
+            let cashDiffChartInstance = null;
             let allocationChartInstance = null;
-
-            function getMonthKey(y = currentYear, m = currentMonth) {
-                return `${y}-${String(m).padStart(2, '0')}`;
-            }
-
-            function getPrevMonthKey(y = currentYear, m = currentMonth) {
-                let py = y;
-                let pm = m - 1;
-                if (pm < 1) { pm = 12; py -= 1; }
-                return getMonthKey(py, pm);
-            }
-
-            function formatTWD(num) {
-                const val = Math.round(Number(num) || 0);
-                const sign = val < 0 ? '-' : '';
-                return `${sign}NT$ ${Math.abs(val).toLocaleString('en-US')}`;
-            }
-
-            function showToast(msg) {
-                const box = document.getElementById('toast-box');
-                const text = document.getElementById('toast-message');
-                if (!box || !text) return;
-                text.textContent = msg;
-                box.classList.remove('opacity-0', 'translate-y-2');
-                box.classList.add('opacity-100', 'translate-y-0');
-                clearTimeout(window._toastTimer);
-                window._toastTimer = setTimeout(() => {
-                    box.classList.remove('opacity-100', 'translate-y-0');
-                    box.classList.add('opacity-0', 'translate-y-2');
-                }, 2600);
-            }
 
             function loadState() {
                 try {
@@ -735,6 +756,87 @@
                 }
             }
 
+            function showToast(msg) {
+                const box = document.getElementById('toast-box');
+                const label = document.getElementById('toast-message');
+                if (!box || !label) return;
+                label.textContent = msg;
+                box.classList.remove('opacity-0', 'translate-y-2');
+                box.classList.add('opacity-100', 'translate-y-0');
+                clearTimeout(window._toastTimer);
+                window._toastTimer = setTimeout(() => {
+                    box.classList.remove('opacity-100', 'translate-y-0');
+                    box.classList.add('opacity-0', 'translate-y-2');
+                }, 2600);
+            }
+
+            function formatTWD(num) {
+                const val = Math.round(Number(num) || 0);
+                return 'NT$ ' + val.toLocaleString('zh-TW');
+            }
+
+            function formatNumber(num, decimals = 2) {
+                return Number(num || 0).toLocaleString('zh-TW', {
+                    minimumFractionDigits: decimals,
+                    maximumFractionDigits: decimals
+                });
+            }
+
+            function getMonthKey(year = currentYear, month = currentMonth) {
+                return `${year}-${String(month).padStart(2, '0')}`;
+            }
+
+            function getPrevMonthKey(year = currentYear, month = currentMonth) {
+                let y = year;
+                let m = month - 1;
+                if (m < 1) { m = 12; y -= 1; }
+                return getMonthKey(y, m);
+            }
+
+            function getDaysInMonth(year, month) {
+                return new Date(year, month, 0).getDate();
+            }
+
+            function applyCycleDefaultMonth() {
+                const today = new Date();
+                let y = today.getFullYear();
+                let m = today.getMonth() + 1;
+                const d = today.getDate();
+                const startDay = Number(state.cycleStartDay) || 1;
+                if (d < startDay) {
+                    m -= 1;
+                    if (m < 1) { m = 12; y -= 1; }
+                }
+                currentYear = y;
+                currentMonth = m;
+            }
+
+            function updateMonthHeaderUI() {
+                const mk = getMonthKey();
+                const startDay = Math.min(28, Math.max(1, Number(state.cycleStartDay) || 1));
+                const endDay = getDaysInMonth(currentYear, currentMonth);
+                const startStr = String(startDay).padStart(2, '0');
+                const endStr = String(endDay).padStart(2, '0');
+
+                const monthLabel = document.getElementById('current-month-label');
+                const cycleSub = document.getElementById('current-cycle-sub');
+                const cycleBadge = document.getElementById('cycle-period-badge');
+
+                if (monthLabel) monthLabel.textContent = mk;
+                if (cycleSub) cycleSub.textContent = `${startStr}日~${endStr}日`;
+                if (cycleBadge) {
+                    cycleBadge.innerHTML = `<i class="fa-regular fa-calendar text-[10px] text-[#7F1D1D] dark:text-[#E07A7A]"></i><span>計算週期：${mk}-${startStr} ～ ${mk}-${endStr}（月底結算）</span>`;
+                }
+            }
+
+            function changeMonth(delta) {
+                currentMonth += delta;
+                if (currentMonth > 12) { currentMonth = 1; currentYear += 1; }
+                if (currentMonth < 1) { currentMonth = 12; currentYear -= 1; }
+                updateMonthHeaderUI();
+                renderAccountsTab();
+            }
+
             function applyTheme() {
                 const html = document.documentElement;
                 const icon = document.getElementById('theme-icon');
@@ -751,132 +853,79 @@
                 state.theme = state.theme === 'dark' ? 'light' : 'dark';
                 saveState();
                 applyTheme();
-                renderAssetSnapshotsChart();
-                renderTrendCharts();
+                if (activeTab === 'stocks') renderSnapshotChart();
+                if (activeTab === 'trends') renderTrendCharts();
             }
 
-            function updateMonthLabel() {
-                const el = document.getElementById('current-month-label');
-                if (el) el.textContent = getMonthKey();
-            }
+            function switchTab(tab) {
+                activeTab = tab;
+                ['accounts', 'stocks', 'trends', 'settings'].forEach(t => {
+                    const sec = document.getElementById(`tab-${t}`);
+                    const nav = document.getElementById(`nav-${t}`);
+                    if (sec) sec.classList.toggle('hidden', t !== tab);
+                    if (nav) {
+                        if (t === tab) {
+                            nav.className = 'flex flex-col items-center justify-center py-1.5 rounded-xl text-[#7F1D1D] dark:text-[#E07A7A] bg-[#EFECE4] dark:bg-[#2E2A26] transition';
+                        } else {
+                            nav.className = 'flex flex-col items-center justify-center py-1.5 rounded-xl text-[#8C8275] hover:text-[#5C5346] transition';
+                        }
+                    }
+                });
 
-            function changeMonth(delta) {
-                currentMonth += delta;
-                if (currentMonth > 12) { currentMonth = 1; currentYear += 1; }
-                if (currentMonth < 1) { currentMonth = 12; currentYear -= 1; }
-                updateMonthLabel();
-                renderMemo();
-                renderSummary();
-                renderAccountList();
-            }
-
-            // ================= 備忘錄 (Memo) =================
-            function renderMemo() {
-                const input = document.getElementById('monthly-memo-input');
-                if (!input) return;
-                const mk = getMonthKey();
-                input.value = state.memos[mk] || '';
-            }
-
-            function saveMonthlyMemo(val) {
-                const mk = getMonthKey();
-                state.memos[mk] = val;
-                saveState();
-                const status = document.getElementById('memo-save-status');
-                if (status) {
-                    status.textContent = '已記下 ✓';
-                    clearTimeout(window._memoTimer);
-                    window._memoTimer = setTimeout(() => { status.textContent = '自動儲存'; }, 1500);
+                if (tab === 'accounts') renderAccountsTab();
+                if (tab === 'stocks') renderStocksTab();
+                if (tab === 'trends') renderTrendCharts();
+                if (tab === 'settings') {
+                    updateAutoBackupUI();
+                    updateCycleSettingPreview();
                 }
             }
 
-            function appendMemoTag(tag) {
-                const input = document.getElementById('monthly-memo-input');
-                if (!input) return;
-                const prefix = input.value.trim() ? '\n' : '';
-                input.value += `${prefix}・${tag}：`;
-                saveMonthlyMemo(input.value);
-                input.focus();
-            }
-
-            // ================= 帳戶總額與摘要計算 =================
-            function calcMonthNetCash(monthKey) {
-                const monthData = state.balances[monthKey];
-                if (!monthData) return null;
+            // ================= 帳戶盤點與計算邏輯 =================
+            function calcMonthNetCash(mk) {
+                const monthBal = state.balances[mk];
+                if (!monthBal) return null;
                 let hasAny = false;
                 let total = 0;
                 state.accounts.forEach(acc => {
-                    if (monthData[acc.id] !== undefined && monthData[acc.id] !== null) {
+                    if (monthBal[acc.id] !== undefined && monthBal[acc.id] !== null) {
                         hasAny = true;
-                        const val = Number(monthData[acc.id]) || 0;
+                        const val = Number(monthBal[acc.id]) || 0;
                         total += acc.type === 'liability' ? -val : val;
                     }
                 });
                 return hasAny ? total : null;
             }
 
-            function calcPortfolioTotals() {
-                const rate = Number(state.usdTwdRate) || 32.5;
-                let marketValueTwd = 0;
-                let costTwd = 0;
-                let dividendsTwd = 0;
-
-                state.stocks.forEach(st => {
-                    const mult = st.currency === 'USD' ? rate : 1;
-                    const shares = Number(st.shares) || 0;
-                    const price = Number(st.lastPrice) || 0;
-                    const cost = Number(st.avgCost) || 0;
-                    const div = Number(st.dividendsReceived) || 0;
-
-                    marketValueTwd += shares * price * mult;
-                    costTwd += shares * cost * mult;
-                    dividendsTwd += div * mult;
-                });
-
-                const capitalGainTwd = marketValueTwd - costTwd;
-                const totalWithDivTwd = marketValueTwd + dividendsTwd;
-                const totalReturnTwd = capitalGainTwd + dividendsTwd;
-                const returnPct = costTwd > 0 ? (totalReturnTwd / costTwd) * 100 : 0;
-
-                return {
-                    marketValueTwd,
-                    costTwd,
-                    dividendsTwd,
-                    capitalGainTwd,
-                    totalWithDivTwd,
-                    totalReturnTwd,
-                    returnPct
-                };
-            }
-
             function renderSummary() {
                 const mk = getMonthKey();
                 const prevMk = getPrevMonthKey();
-                const currentNet = calcMonthNetCash(mk);
-                const prevNet = calcMonthNetCash(prevMk);
+                const netCash = calcMonthNetCash(mk);
+                const prevNetCash = calcMonthNetCash(prevMk);
                 const stockTotals = calcPortfolioTotals();
+                const grandTotal = (netCash || 0) + stockTotals.totalWithDivTwd;
 
                 const netCashEl = document.getElementById('summary-net-cash');
                 const diffEl = document.getElementById('summary-monthly-diff');
                 const prevEl = document.getElementById('summary-prev-cash');
                 const grandEl = document.getElementById('summary-grand-total');
 
-                const displayNet = currentNet !== null ? currentNet : 0;
-                if (netCashEl) netCashEl.textContent = formatTWD(displayNet);
+                if (netCashEl) netCashEl.textContent = formatTWD(netCash || 0);
+                if (grandEl) grandEl.textContent = formatTWD(grandTotal);
 
                 if (prevEl) {
-                    prevEl.textContent = prevNet !== null ? `上月: ${formatTWD(prevNet)}` : '上月: --';
+                    prevEl.textContent = prevNetCash !== null ? `上月: ${formatTWD(prevNetCash)}` : '上月: 尚無紀錄';
                 }
 
                 if (diffEl) {
-                    if (currentNet === null) {
+                    if (prevNetCash === null) {
+                        diffEl.textContent = '尚無上月紀錄';
+                        diffEl.className = 'font-semibold text-[#8C8275] tabular-nums';
+                    } else if (netCash === null) {
                         diffEl.textContent = '尚未盤點本月';
                         diffEl.className = 'font-semibold text-[#8C8275] tabular-nums';
-                    } else if (prevNet === null) {
-                        diffEl.textContent = '首期盤點基準';
-                        diffEl.className = 'font-semibold text-[#5B7052] dark:text-[#8FB082] tabular-nums';
                     } else {
-                        const diff = currentNet - prevNet;
+                        const diff = netCash - prevNetCash;
                         const sign = diff > 0 ? '+' : '';
                         diffEl.textContent = `${sign}${formatTWD(diff)}`;
                         diffEl.className = diff >= 0
@@ -884,72 +933,108 @@
                             : 'font-semibold text-[#8B2626] dark:text-[#E07A7A] tabular-nums';
                     }
                 }
-
-                if (grandEl) {
-                    grandEl.textContent = formatTWD(displayNet + stockTotals.totalWithDivTwd);
-                }
-
-                const demoBanner = document.getElementById('demo-banner');
-                if (demoBanner) {
-                    const hasAnyData = Object.keys(state.balances).length > 0 || state.stocks.length > 0;
-                    demoBanner.classList.toggle('hidden', hasAnyData);
-                }
             }
 
-            function renderAccountList() {
-                const container = document.getElementById('account-list-container');
-                if (!container) return;
-                const mk = getMonthKey();
-                const prevMk = getPrevMonthKey();
-                const monthData = state.balances[mk] || {};
-                const prevData = state.balances[prevMk] || {};
+            function renderAccountsTab() {
+                updateMonthHeaderUI();
+                renderSummary();
 
+                const mk = getMonthKey();
+                const memoInput = document.getElementById('monthly-memo-input');
+                if (memoInput) memoInput.value = state.memos[mk] || '';
+
+                const container = document.getElementById('account-list-container');
+                const demoBanner = document.getElementById('demo-banner');
+                const subtitle = document.getElementById('account-list-subtitle');
+                const reorderBtn = document.getElementById('btn-toggle-reorder');
+
+                if (reorderBtn) {
+                    reorderBtn.innerHTML = isAccountReorderMode
+                        ? '<i class="fa-solid fa-check text-[10px]"></i> 完成排序 ✓'
+                        : '<i class="fa-solid fa-arrows-up-down text-[10px]"></i> 調整順序';
+                    reorderBtn.className = isAccountReorderMode
+                        ? 'text-xs font-semibold text-[#FAF8F5] bg-[#5B7052] px-2.5 py-1.5 rounded-xl transition flex items-center gap-1 active:scale-95'
+                        : 'text-xs font-semibold text-[#5C5346] dark:text-[#D6CFC5] bg-[#EFECE6] dark:bg-[#2A2724] hover:bg-[#E5E0D8] px-2.5 py-1.5 rounded-xl border border-[#DCD5C7] dark:border-[#3D3832] transition flex items-center gap-1 active:scale-95';
+                }
+                if (subtitle) {
+                    subtitle.textContent = isAccountReorderMode
+                        ? '點擊右側上下箭頭調整帳戶顯示順序'
+                        : '點擊帳戶直接填寫當下餘額，免記流水帳';
+                }
+
+                const hasAnyData = Object.keys(state.balances).length > 0 || state.stocks.length > 0;
+                if (demoBanner) demoBanner.classList.toggle('hidden', hasAnyData);
+
+                if (!container) return;
                 if (state.accounts.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center py-8 bg-[#FAF8F5] dark:bg-[#25221F] rounded-2xl border border-[#E2DBD0] dark:border-[#38332E]">
-                            <p class="text-xs text-[#8C8275]">尚未建立帳戶，點擊右上角「+ 新增帳戶」開始</p>
-                        </div>`;
+                    container.innerHTML = `<div class="text-center py-8 text-xs text-[#8C8275] bg-[#FAF8F5] dark:bg-[#25221F] rounded-2xl border border-[#E2DBD0] dark:border-[#38332E]">尚未建立任何帳戶，請點擊右上角「+ 新增帳戶」</div>`;
                     return;
                 }
 
-                container.innerHTML = state.accounts.map(acc => {
-                    const hasVal = monthData[acc.id] !== undefined && monthData[acc.id] !== null;
-                    const val = hasVal ? Number(monthData[acc.id]) : null;
-                    const prevVal = prevData[acc.id] !== undefined ? Number(prevData[acc.id]) : null;
-                    const isLiab = acc.type === 'liability';
+                const monthBal = state.balances[mk] || {};
+                container.innerHTML = state.accounts.map((acc, idx) => {
+                    const isLiability = acc.type === 'liability';
+                    const rawVal = monthBal[acc.id];
+                    const hasVal = rawVal !== undefined && rawVal !== null;
+                    const displayAmount = hasVal ? formatTWD(rawVal) : '點擊輸入餘額';
+                    const badgeClass = isLiability
+                        ? 'bg-[#F5E6E6] dark:bg-[#3A2626] text-[#8B2626] dark:text-[#E07A7A]'
+                        : 'bg-[#E6ECE3] dark:bg-[#2B3627] text-[#4B6342] dark:text-[#8FB082]';
 
-                    let diffBadge = '';
-                    if (hasVal && prevVal !== null) {
-                        const d = val - prevVal;
-                        if (d !== 0) {
-                            const good = isLiab ? d < 0 : d > 0;
-                            const color = good ? 'text-[#4B6342] dark:text-[#8FB082]' : 'text-[#8B2626] dark:text-[#E07A7A]';
-                            diffBadge = `<span class="text-[10px] font-semibold ${color} tabular-nums">${d > 0 ? '+' : ''}${d.toLocaleString()}</span>`;
-                        }
+                    if (isAccountReorderMode) {
+                        return `
+                        <div class="bg-[#FAF8F5] dark:bg-[#25221F] rounded-2xl p-3.5 border border-[#DCD5C7] dark:border-[#3D3832] muji-card flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-xs font-semibold text-[#8C8275] w-5 text-center">${idx + 1}</span>
+                                <div>
+                                    <div class="text-sm font-semibold text-[#2C2926] dark:text-[#F3EFEA]">${acc.name}</div>
+                                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md ${badgeClass}">${acc.category}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button type="button" onclick="window.app.moveAccountOrder(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} class="w-8 h-8 rounded-xl bg-[#EFECE6] dark:bg-[#322E2A] disabled:opacity-30 flex items-center justify-center text-[#5C5346] dark:text-[#EAE5DC]">
+                                    <i class="fa-solid fa-arrow-up text-xs"></i>
+                                </button>
+                                <button type="button" onclick="window.app.moveAccountOrder(${idx}, 1)" ${idx === state.accounts.length - 1 ? 'disabled' : ''} class="w-8 h-8 rounded-xl bg-[#EFECE6] dark:bg-[#322E2A] disabled:opacity-30 flex items-center justify-center text-[#5C5346] dark:text-[#EAE5DC]">
+                                    <i class="fa-solid fa-arrow-down text-xs"></i>
+                                </button>
+                            </div>
+                        </div>`;
                     }
 
                     return `
-                    <div onclick="window.app.openBalanceDrawer('${acc.id}')" class="bg-[#FAF8F5] dark:bg-[#25221F] hover:bg-white dark:hover:bg-[#2C2824] rounded-2xl p-3.5 border border-[#E2DBD0] dark:border-[#38332E] muji-card flex items-center justify-between cursor-pointer transition active:scale-[0.99]">
-                        <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-10 h-10 rounded-xl ${isLiab ? 'bg-[#F5E6E6] dark:bg-[#362222] text-[#8B2626] dark:text-[#E07A7A]' : 'bg-[#E6ECE3] dark:bg-[#2B3627] text-[#4B6342] dark:text-[#8FB082]'} flex items-center justify-center shrink-0">
-                                <i class="fa-solid ${isLiab ? 'fa-credit-card' : 'fa-building-columns'} text-sm"></i>
+                    <div onclick="window.app.openBalanceDrawer('${acc.id}')" class="bg-[#FAF8F5] dark:bg-[#25221F] hover:bg-[#F3EFE8] dark:hover:bg-[#2C2824] rounded-2xl p-3.5 border border-[#E2DBD0] dark:border-[#38332E] muji-card flex items-center justify-between cursor-pointer transition active:scale-[0.99]">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="text-sm font-semibold text-[#2C2926] dark:text-[#F3EFEA]">${acc.name}</span>
                             </div>
-                            <div class="min-w-0">
-                                <div class="text-sm font-semibold text-[#2C2926] dark:text-[#F3EFEA] truncate">${acc.name}</div>
-                                <div class="flex items-center gap-1.5 mt-0.5">
-                                    <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-[#EFECE6] dark:bg-[#322E2A] text-[#6E6459] dark:text-[#B5ABA0]">${acc.category}</span>
-                                    ${diffBadge}
-                                </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md ${badgeClass}">${isLiability ? '負債' : '資產'} · ${acc.category}</span>
                             </div>
                         </div>
-                        <div class="text-right shrink-0 ml-2">
-                            <div class="text-sm font-semibold tabular-nums ${!hasVal ? 'text-[#C2B9AC] dark:text-[#575049]' : (isLiab ? 'text-[#8B2626] dark:text-[#E07A7A]' : 'text-[#2C2926] dark:text-[#FAF8F5]')}">
-                                ${hasVal ? (isLiab ? `-${formatTWD(val)}` : formatTWD(val)) : '點擊填寫'}
+                        <div class="text-right">
+                            <div class="text-base font-semibold tabular-nums ${hasVal ? (isLiability ? 'text-[#8B2626] dark:text-[#E07A7A]' : 'text-[#2C2926] dark:text-[#FAF8F5]') : 'text-[#A3998B] text-xs'}">
+                                ${isLiability && hasVal && Number(rawVal) > 0 ? '-' : ''}${displayAmount}
                             </div>
-                            <div class="text-[10px] text-[#8C8275] mt-0.5">${hasVal ? '已盤點' : '未填寫'}</div>
+                            <div class="text-[10px] text-[#8C8275] mt-0.5">${hasVal ? '點擊修改' : '待盤點'}</div>
                         </div>
                     </div>`;
                 }).join('');
+            }
+
+            function toggleAccountReorder() {
+                isAccountReorderMode = !isAccountReorderMode;
+                renderAccountsTab();
+            }
+
+            function moveAccountOrder(index, direction) {
+                const targetIndex = index + direction;
+                if (targetIndex < 0 || targetIndex >= state.accounts.length) return;
+                const temp = state.accounts[index];
+                state.accounts[index] = state.accounts[targetIndex];
+                state.accounts[targetIndex] = temp;
+                saveState();
+                renderAccountsTab();
             }
 
             function copyPreviousMonthBalances() {
@@ -957,18 +1042,39 @@
                 const prevMk = getPrevMonthKey();
                 const prevData = state.balances[prevMk];
                 if (!prevData || Object.keys(prevData).length === 0) {
-                    showToast('上個月尚無盤點紀錄可帶入');
+                    showToast(`上個月 (${prevMk}) 尚無餘額紀錄可帶入`);
                     return;
                 }
                 state.balances[mk] = { ...prevData };
                 saveState();
-                renderSummary();
-                renderAccountList();
-                renderTrendCharts();
-                showToast(`已帶入 ${prevMk} 帳戶餘額`);
+                renderAccountsTab();
+                showToast(`已成功帶入 ${prevMk} 的帳戶餘額`);
             }
 
-            // ================= 計算機抽屜邏輯 =================
+            function saveMonthlyMemo(text) {
+                const mk = getMonthKey();
+                state.memos[mk] = text;
+                saveState();
+                const status = document.getElementById('memo-save-status');
+                if (status) {
+                    status.textContent = '已儲存 ✓';
+                    clearTimeout(window._memoTimer);
+                    window._memoTimer = setTimeout(() => {
+                        status.textContent = '自動儲存';
+                    }, 1500);
+                }
+            }
+
+            function appendMemoTag(tag) {
+                const input = document.getElementById('monthly-memo-input');
+                if (!input) return;
+                const prefix = input.value.trim() ? '\n' : '';
+                input.value = `${input.value}${prefix}・${tag}：`;
+                input.focus();
+                saveMonthlyMemo(input.value);
+            }
+
+            // ================= 計算機抽屜操作 =================
             function openBalanceDrawer(accId) {
                 const acc = state.accounts.find(a => a.id === accId);
                 if (!acc) return;
@@ -979,10 +1085,10 @@
                 document.getElementById('drawer-account-name').textContent = acc.name;
                 const badge = document.getElementById('drawer-account-type-badge');
                 if (acc.type === 'liability') {
-                    badge.textContent = '負債項目（自動扣除）';
+                    badge.textContent = `負債項目 · ${acc.category}`;
                     badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#F5E6E6] text-[#8B2626]';
                 } else {
-                    badge.textContent = '流動資產（加總計入）';
+                    badge.textContent = `現金資產 · ${acc.category}`;
                     badge.className = 'text-[10px] font-semibold px-2 py-0.5 rounded-md bg-[#E6ECE3] text-[#4B6342]';
                 }
 
@@ -1003,11 +1109,12 @@
             function updateCalcDisplay() {
                 const disp = document.getElementById('calc-display');
                 const expr = document.getElementById('calc-expression');
-                if (disp) disp.textContent = Number(calcCurrent || 0).toLocaleString('en-US');
+                if (disp) {
+                    const num = Number(calcCurrent);
+                    disp.textContent = isNaN(num) ? calcCurrent : num.toLocaleString('zh-TW');
+                }
                 if (expr) {
-                    expr.textContent = (calcPrev !== null && calcOperator)
-                        ? `${Number(calcPrev).toLocaleString('en-US')} ${calcOperator}`
-                        : '';
+                    expr.textContent = calcPrev !== null && calcOperator ? `${Number(calcPrev).toLocaleString('zh-TW')} ${calcOperator}` : '';
                 }
             }
 
@@ -1023,8 +1130,12 @@
             }
 
             function calcBackspace() {
-                if (calcResetNext) return;
-                calcCurrent = calcCurrent.length > 1 ? calcCurrent.slice(0, -1) : '0';
+                if (calcResetNext) {
+                    calcCurrent = '0';
+                    calcResetNext = false;
+                } else {
+                    calcCurrent = calcCurrent.length > 1 ? calcCurrent.slice(0, -1) : '0';
+                }
                 updateCalcDisplay();
             }
 
@@ -1040,7 +1151,7 @@
                 if (calcOperator && !calcResetNext) {
                     calcEquals();
                 }
-                calcPrev = Number(calcCurrent) || 0;
+                calcPrev = parseFloat(calcCurrent) || 0;
                 calcOperator = op;
                 calcResetNext = true;
                 updateCalcDisplay();
@@ -1048,8 +1159,10 @@
 
             function calcEquals() {
                 if (calcPrev === null || !calcOperator) return;
-                const curr = Number(calcCurrent) || 0;
-                let res = calcOperator === '+' ? calcPrev + curr : Math.max(0, calcPrev - curr);
+                const curr = parseFloat(calcCurrent) || 0;
+                let res = calcPrev;
+                if (calcOperator === '+') res = calcPrev + curr;
+                if (calcOperator === '-') res = Math.max(0, calcPrev - curr);
                 calcCurrent = String(Math.round(res));
                 calcPrev = null;
                 calcOperator = null;
@@ -1060,18 +1173,17 @@
             function saveAccountBalance() {
                 if (calcOperator && !calcResetNext) calcEquals();
                 if (!activeDrawerAccountId) return;
+                const val = Math.max(0, Math.round(parseFloat(calcCurrent) || 0));
                 const mk = getMonthKey();
                 if (!state.balances[mk]) state.balances[mk] = {};
-                state.balances[mk][activeDrawerAccountId] = Math.max(0, Number(calcCurrent) || 0);
+                state.balances[mk][activeDrawerAccountId] = val;
                 saveState();
                 closeBalanceDrawer();
-                renderSummary();
-                renderAccountList();
-                renderTrendCharts();
-                showToast('帳戶餘額已記下');
+                renderAccountsTab();
+                showToast('已更新帳戶餘額');
             }
 
-            // ================= 帳戶管理彈窗 =================
+            // ================= 新增 / 編輯帳戶 Modal =================
             function openAccountModal(accId = null) {
                 editingAccountId = accId;
                 const title = document.getElementById('account-modal-title');
@@ -1097,27 +1209,27 @@
                 document.getElementById('account-modal').classList.remove('hidden');
             }
 
-            function closeAccountModal() {
-                document.getElementById('account-modal').classList.add('hidden');
-                editingAccountId = null;
-            }
-
             function editCurrentDrawerAccount() {
                 const id = activeDrawerAccountId;
                 closeBalanceDrawer();
                 if (id) openAccountModal(id);
             }
 
+            function closeAccountModal() {
+                document.getElementById('account-modal').classList.add('hidden');
+                editingAccountId = null;
+            }
+
             function selectAccType(type) {
                 selectedAccType = type;
-                const assetBtn = document.getElementById('acc-type-asset');
-                const liabBtn = document.getElementById('acc-type-liability');
+                const btnAsset = document.getElementById('acc-type-asset');
+                const btnLiab = document.getElementById('acc-type-liability');
                 if (type === 'asset') {
-                    assetBtn.className = 'py-2.5 rounded-xl text-xs font-semibold border-2 border-[#5B7052] bg-[#E6ECE3] dark:bg-[#2B3627] text-[#4B6342] dark:text-[#8FB082]';
-                    liabBtn.className = 'py-2.5 rounded-xl text-xs font-semibold border border-[#DFD8CA] dark:border-[#36312C] text-[#8C8275]';
+                    btnAsset.className = 'py-2.5 rounded-xl text-xs font-semibold border-2 border-[#5B7052] bg-[#E6ECE3] dark:bg-[#2B3627] text-[#4B6342] dark:text-[#8FB082]';
+                    btnLiab.className = 'py-2.5 rounded-xl text-xs font-semibold border border-[#DFD8CA] dark:border-[#36312C] text-[#8C8275]';
                 } else {
-                    liabBtn.className = 'py-2.5 rounded-xl text-xs font-semibold border-2 border-[#8B2626] bg-[#F5E6E6] dark:bg-[#362222] text-[#8B2626] dark:text-[#E07A7A]';
-                    assetBtn.className = 'py-2.5 rounded-xl text-xs font-semibold border border-[#DFD8CA] dark:border-[#36312C] text-[#8C8275]';
+                    btnLiab.className = 'py-2.5 rounded-xl text-xs font-semibold border-2 border-[#8B2626] bg-[#F5E6E6] dark:bg-[#3A2626] text-[#8B2626] dark:text-[#E07A7A]';
+                    btnAsset.className = 'py-2.5 rounded-xl text-xs font-semibold border border-[#DFD8CA] dark:border-[#36312C] text-[#8C8275]';
                 }
             }
 
@@ -1129,10 +1241,13 @@
                     return;
                 }
                 if (editingAccountId) {
-                    const idx = state.accounts.findIndex(a => a.id === editingAccountId);
-                    if (idx !== -1) {
-                        state.accounts[idx] = { ...state.accounts[idx], name, type: selectedAccType, category };
+                    const acc = state.accounts.find(a => a.id === editingAccountId);
+                    if (acc) {
+                        acc.name = name;
+                        acc.type = selectedAccType;
+                        acc.category = category;
                     }
+                    showToast('已更新帳戶資訊');
                 } else {
                     state.accounts.push({
                         id: 'acc_' + Date.now(),
@@ -1140,12 +1255,11 @@
                         type: selectedAccType,
                         category
                     });
+                    showToast('已新增帳戶');
                 }
                 saveState();
                 closeAccountModal();
-                renderSummary();
-                renderAccountList();
-                showToast('帳戶設定已儲存');
+                renderAccountsTab();
             }
 
             function deleteAccount() {
@@ -1156,113 +1270,144 @@
                 });
                 saveState();
                 closeAccountModal();
-                renderSummary();
-                renderAccountList();
-                renderTrendCharts();
+                renderAccountsTab();
                 showToast('已刪除該帳戶');
             }
 
-            // ================= 股票報價查詢與持股管理 =================
-            function isTaiwanSymbol(sym) {
-                return /^[0-9]{4,6}[A-Za-z]?$/.test(sym.trim());
+            // ================= 股票資產計算與查詢 =================
+            function calcPortfolioTotals() {
+                const rate = Number(state.usdTwdRate) || 32.5;
+                let totalCostTwd = 0;
+                let totalMarketTwd = 0;
+                let totalDivTwd = 0;
+
+                state.stocks.forEach(s => {
+                    const mult = s.currency === 'USD' ? rate : 1;
+                    const shares = Number(s.shares) || 0;
+                    const cost = Number(s.cost) || 0;
+                    const price = Number(s.price) || 0;
+                    const div = Number(s.dividend) || 0;
+
+                    totalCostTwd += shares * cost * mult;
+                    totalMarketTwd += shares * price * mult;
+                    totalDivTwd += div * mult;
+                });
+
+                const capitalGainTwd = totalMarketTwd - totalCostTwd;
+                const totalWithDivTwd = totalMarketTwd + totalDivTwd;
+                const totalReturnTwd = totalWithDivTwd - totalCostTwd;
+                const totalReturnPct = totalCostTwd > 0 ? (totalReturnTwd / totalCostTwd) * 100 : 0;
+
+                return {
+                    totalCostTwd,
+                    totalMarketTwd,
+                    totalDivTwd,
+                    capitalGainTwd,
+                    totalWithDivTwd,
+                    totalReturnTwd,
+                    totalReturnPct
+                };
             }
 
-            async function fetchLatestClosingPrice(rawSymbol) {
-                const sym = rawSymbol.trim().toUpperCase();
+            function renderStocksTab() {
+                const totals = calcPortfolioTotals();
+                document.getElementById('fx-rate-badge').textContent = Number(state.usdTwdRate || 32.5).toFixed(2);
+                document.getElementById('stock-total-with-div').textContent = formatTWD(totals.totalWithDivTwd);
+
+                const retEl = document.getElementById('stock-total-return');
+                const sign = totals.totalReturnTwd >= 0 ? '+' : '';
+                retEl.textContent = `${sign}${formatTWD(totals.totalReturnTwd)} (${sign}${totals.totalReturnPct.toFixed(2)}%)`;
+                retEl.className = totals.totalReturnTwd >= 0
+                    ? 'font-semibold text-[#4B6342] dark:text-[#8FB082] tabular-nums'
+                    : 'font-semibold text-[#8B2626] dark:text-[#E07A7A] tabular-nums';
+
+                const capSign = totals.capitalGainTwd >= 0 ? '+' : '';
+                document.getElementById('stock-capital-gain').textContent = `${capSign}${formatTWD(totals.capitalGainTwd)}`;
+                document.getElementById('stock-total-dividends').textContent = `+${formatTWD(totals.totalDivTwd)}`;
+
+                const listEl = document.getElementById('stock-list-container');
+                if (state.stocks.length === 0) {
+                    listEl.innerHTML = `<div class="text-center py-8 text-xs text-[#8C8275] bg-[#FAF8F5] dark:bg-[#25221F] rounded-2xl border border-[#E2DBD0] dark:border-[#38332E]">尚未新增股票持股，點擊右上角「+ 新增持股」開始追蹤</div>`;
+                } else {
+                    listEl.innerHTML = state.stocks.map(s => {
+                        const shares = Number(s.shares) || 0;
+                        const cost = Number(s.cost) || 0;
+                        const price = Number(s.price) || 0;
+                        const div = Number(s.dividend) || 0;
+                        const marketVal = shares * price;
+                        const withDivVal = marketVal + div;
+                        const totalGain = withDivVal - (shares * cost);
+                        const gainPct = (shares * cost) > 0 ? (totalGain / (shares * cost)) * 100 : 0;
+                        const gainSign = totalGain >= 0 ? '+' : '';
+                        const prefix = s.currency === 'USD' ? 'US$ ' : 'NT$ ';
+
+                        return `
+                        <div onclick="window.app.openStockModal('${s.id}')" class="bg-[#FAF8F5] dark:bg-[#25221F] hover:bg-[#F3EFE8] rounded-2xl p-3.5 border border-[#E2DBD0] dark:border-[#38332E] muji-card cursor-pointer transition space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-sm font-semibold text-[#2C2926] dark:text-[#F3EFEA]">${s.symbol}</span>
+                                        <span class="text-xs text-[#6E6459] dark:text-[#B5ABA0]">${s.name || ''}</span>
+                                    </div>
+                                    <div class="text-[11px] text-[#8C8275] mt-0.5 tabular-nums">
+                                        ${shares.toLocaleString()} 股 · 均價 ${formatNumber(cost)} · 收盤 ${formatNumber(price)}
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-semibold text-[#2C2926] dark:text-[#FAF8F5] tabular-nums">${prefix}${formatNumber(withDivVal, s.currency === 'USD' ? 2 : 0)}</div>
+                                    <div class="text-[11px] font-semibold tabular-nums ${totalGain >= 0 ? 'text-[#4B6342] dark:text-[#8FB082]' : 'text-[#8B2626] dark:text-[#E07A7A]'}">
+                                        ${gainSign}${formatNumber(totalGain, s.currency === 'USD' ? 2 : 0)} (${gainSign}${gainPct.toFixed(1)}%)
+                                    </div>
+                                </div>
+                            </div>
+                            ${div > 0 ? `<div class="text-[10px] text-[#9A6B2F] dark:text-[#D9A760] bg-[#F7F2E7] dark:bg-[#2E281E] px-2.5 py-1 rounded-lg inline-block">已含累計股息：${prefix}${formatNumber(div, s.currency === 'USD' ? 2 : 0)}</div>` : ''}
+                        </div>`;
+                    }).join('');
+                }
+
+                renderSnapshotChart();
+                renderSnapshotHistoryList();
+            }
+
+            async function fetchStockQuote(rawSymbol) {
+                const sym = (rawSymbol || '').trim().toUpperCase();
                 if (!sym) return null;
 
-                if (isTaiwanSymbol(sym)) {
-                    try {
-                        const twseUrl = 'https://openapi.twse.com.tw/v1/exchangeReport/STOCK_DAY_ALL';
-                        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(twseUrl)}`);
-                        if (res.ok) {
-                            const wrapper = await res.json();
-                            const rows = JSON.parse(wrapper.contents || '[]');
-                            const match = rows.find(r => r.Code === sym);
-                            if (match && match.ClosingPrice && !isNaN(parseFloat(match.ClosingPrice))) {
-                                return {
-                                    symbol: sym,
-                                    name: match.Name || sym,
-                                    price: parseFloat(match.ClosingPrice),
-                                    currency: 'TWD',
-                                    source: 'TWSE 官方收盤'
-                                };
-                            }
+                const isTw = /^\d{4,6}[A-Z]?$/.test(sym);
+                const yahooSym = isTw ? `${sym}.TW` : sym;
+
+                try {
+                    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(yahooSym)}?interval=1d&range=5d`;
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                    const resp = await fetch(proxyUrl);
+                    const wrapped = await resp.json();
+                    const data = JSON.parse(wrapped.contents);
+                    const result = data?.chart?.result?.[0];
+                    if (result) {
+                        const meta = result.meta || {};
+                        const closes = (result.indicators?.quote?.[0]?.close || []).filter(v => v !== null && v !== undefined);
+                        let closePrice = meta.regularMarketPrice;
+                        if (meta.marketState === 'REGULAR' && closes.length >= 2) {
+                            closePrice = closes[closes.length - 2];
+                        } else if (closes.length >= 1) {
+                            closePrice = closes[closes.length - 1];
                         }
-                    } catch (e) { /* 繼續下一節點 */ }
-                }
-
-                const candidates = isTaiwanSymbol(sym) ? [`${sym}.TW`, `${sym}.TWO`] : [sym];
-                for (const ticker of candidates) {
-                    for (const host of ['query2.finance.yahoo.com', 'query1.finance.yahoo.com']) {
-                        try {
-                            const yUrl = `https://${host}/v8/finance/chart/${encodeURIComponent(ticker)}?range=5d&interval=1d&includePrePost=false`;
-                            const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(yUrl)}`);
-                            if (!res.ok) continue;
-                            const wrapper = await res.json();
-                            const data = JSON.parse(wrapper.contents || '{}');
-                            const result = data?.chart?.result?.[0];
-                            if (!result) continue;
-
-                            const meta = result.meta || {};
-                            const closes = (result.indicators?.quote?.[0]?.close || []).filter(v => v !== null && !isNaN(v));
-                            let closePrice = null;
-
-                            if (meta.marketState === 'REGULAR' && closes.length >= 2) {
-                                closePrice = closes[closes.length - 2];
-                            } else if (closes.length >= 1) {
-                                closePrice = closes[closes.length - 1];
-                            } else if (meta.chartPreviousClose) {
-                                closePrice = meta.chartPreviousClose;
-                            }
-
-                            if (closePrice && closePrice > 0) {
-                                return {
-                                    symbol: sym,
-                                    name: FALLBACK_QUOTES[sym]?.name || meta.shortName || meta.symbol || sym,
-                                    price: Number(closePrice.toFixed(2)),
-                                    currency: isTaiwanSymbol(sym) ? 'TWD' : (meta.currency || 'USD'),
-                                    source: 'Yahoo 收盤'
-                                };
-                            }
-                        } catch (e) { /* 繼續下一節點 */ }
+                        if (closePrice) {
+                            return {
+                                symbol: sym,
+                                name: FALLBACK_QUOTES[sym]?.name || meta.shortName || sym,
+                                price: Number(closePrice.toFixed(2)),
+                                currency: isTw ? 'TWD' : (meta.currency || 'USD')
+                            };
+                        }
                     }
-                }
-
-                if (!isTaiwanSymbol(sym)) {
-                    try {
-                        const stooqUrl = `https://stooq.com/q/l/?s=${encodeURIComponent(sym.toLowerCase())}.us&f=sd2t2ohlcv&h&e=csv`;
-                        const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(stooqUrl)}`);
-                        if (res.ok) {
-                            const wrapper = await res.json();
-                            const lines = (wrapper.contents || '').trim().split('\n');
-                            if (lines.length >= 2) {
-                                const cols = lines[1].split(',');
-                                const closeVal = parseFloat(cols[6]);
-                                if (!isNaN(closeVal) && closeVal > 0) {
-                                    return {
-                                        symbol: sym,
-                                        name: FALLBACK_QUOTES[sym]?.name || sym,
-                                        price: Number(closeVal.toFixed(2)),
-                                        currency: 'USD',
-                                        source: 'Stooq 收盤'
-                                    };
-                                }
-                            }
-                        }
-                    } catch (e) { /* 退回本地基準庫 */ }
+                } catch (e) {
+                    console.warn('即時查詢切換備援報價:', e);
                 }
 
                 if (FALLBACK_QUOTES[sym]) {
-                    return {
-                        symbol: sym,
-                        name: FALLBACK_QUOTES[sym].name,
-                        price: FALLBACK_QUOTES[sym].price,
-                        currency: FALLBACK_QUOTES[sym].currency,
-                        source: '內建收盤基準'
-                    };
+                    return { symbol: sym, ...FALLBACK_QUOTES[sym] };
                 }
-
                 return null;
             }
 
@@ -1275,25 +1420,21 @@
                     showToast('請先輸入股票代號');
                     return;
                 }
-
                 btn.disabled = true;
                 btn.textContent = '查詢中...';
-                hint.textContent = '正在連線取得最近一日收盤價...';
-
-                const quote = await fetchLatestClosingPrice(sym);
+                const quote = await fetchStockQuote(sym);
                 btn.disabled = false;
                 btn.textContent = '查收盤';
 
                 if (quote) {
                     document.getElementById('stock-name-input').value = quote.name;
-                    document.getElementById('stock-price-input').value = quote.price;
                     document.getElementById('stock-currency-input').value = quote.currency;
-                    hint.textContent = `✓ 已帶入 ${quote.name} 收盤價 ${quote.price} (${quote.source})`;
-                    showToast(`已帶入 ${sym} 收盤價：${quote.price}`);
+                    document.getElementById('stock-price-input').value = quote.price;
+                    hint.textContent = `已帶入 ${quote.name} 最近收盤價：${quote.price} ${quote.currency}`;
+                    showToast(`已取得 ${sym} 收盤價 ${quote.price}`);
                 } else {
-                    hint.textContent = '查無此代號即時報價，請手動輸入收盤價';
-                    document.getElementById('stock-currency-input').value = isTaiwanSymbol(sym) ? 'TWD' : 'USD';
-                    showToast('請手動填寫收盤價');
+                    hint.textContent = '查無此代號報價，請手動輸入收盤價與名稱';
+                    showToast('查無自動報價，請手動輸入');
                 }
             }
 
@@ -1304,136 +1445,41 @@
                 }
                 const btn = document.getElementById('btn-refresh-quotes');
                 btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 更新收盤中...';
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 更新中...';
 
                 let updatedCount = 0;
-                for (let i = 0; i < state.stocks.length; i++) {
-                    const q = await fetchLatestClosingPrice(state.stocks[i].symbol);
+                for (const s of state.stocks) {
+                    const q = await fetchStockQuote(s.symbol);
                     if (q && q.price) {
-                        state.stocks[i].lastPrice = q.price;
-                        if (!state.stocks[i].name) state.stocks[i].name = q.name;
+                        s.price = q.price;
+                        if (!s.name && q.name) s.name = q.name;
                         updatedCount++;
                     }
                 }
-
                 saveState();
-                renderStockPortfolio();
+                renderStocksTab();
                 renderSummary();
-                renderTrendCharts();
-
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fa-solid fa-rotate"></i> 全部更新收盤價';
-                showToast(`已完成更新 ${updatedCount} 檔收盤價`);
-            }
-
-            function renderStockPortfolio() {
-                const totals = calcPortfolioTotals();
-                const rate = Number(state.usdTwdRate) || 32.5;
-
-                const fxBadge = document.getElementById('fx-rate-badge');
-                if (fxBadge) fxBadge.textContent = rate.toFixed(2);
-
-                const totalWithDivEl = document.getElementById('stock-total-with-div');
-                const totalReturnEl = document.getElementById('stock-total-return');
-                const capGainEl = document.getElementById('stock-capital-gain');
-                const divEl = document.getElementById('stock-total-dividends');
-
-                if (totalWithDivEl) totalWithDivEl.textContent = formatTWD(totals.totalWithDivTwd);
-                if (totalReturnEl) {
-                    const sign = totals.totalReturnTwd >= 0 ? '+' : '';
-                    totalReturnEl.textContent = `${sign}${formatTWD(totals.totalReturnTwd)} (${sign}${totals.returnPct.toFixed(2)}%)`;
-                    totalReturnEl.className = totals.totalReturnTwd >= 0
-                        ? 'font-semibold text-[#4B6342] dark:text-[#8FB082] tabular-nums'
-                        : 'font-semibold text-[#8B2626] dark:text-[#E07A7A] tabular-nums';
-                }
-                if (capGainEl) {
-                    const sign = totals.capitalGainTwd >= 0 ? '+' : '';
-                    capGainEl.textContent = `${sign}${formatTWD(totals.capitalGainTwd)}`;
-                    capGainEl.className = totals.capitalGainTwd >= 0
-                        ? 'text-xs font-semibold text-[#4B6342] dark:text-[#8FB082] tabular-nums mt-0.5'
-                        : 'text-xs font-semibold text-[#8B2626] dark:text-[#E07A7A] tabular-nums mt-0.5';
-                }
-                if (divEl) {
-                    divEl.textContent = `+${formatTWD(totals.dividendsTwd)}`;
-                }
-
-                const container = document.getElementById('stock-list-container');
-                if (!container) return;
-
-                if (state.stocks.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center py-8 bg-[#FAF8F5] dark:bg-[#25221F] rounded-2xl border border-[#E2DBD0] dark:border-[#38332E]">
-                            <p class="text-xs text-[#8C8275]">尚未新增持股，點擊右上角「+ 新增持股」輸入代號即可自動帶入收盤價</p>
-                        </div>`;
-                    return;
-                }
-
-                container.innerHTML = state.stocks.map(st => {
-                    const mult = st.currency === 'USD' ? rate : 1;
-                    const shares = Number(st.shares) || 0;
-                    const price = Number(st.lastPrice) || 0;
-                    const cost = Number(st.avgCost) || 0;
-                    const div = Number(st.dividendsReceived) || 0;
-
-                    const mktValTwd = shares * price * mult;
-                    const costValTwd = shares * cost * mult;
-                    const divValTwd = div * mult;
-                    const capGainTwd = mktValTwd - costValTwd;
-                    const totalRetTwd = capGainTwd + divValTwd;
-                    const retPct = costValTwd > 0 ? (totalRetTwd / costValTwd) * 100 : 0;
-
-                    const isPos = totalRetTwd >= 0;
-                    const currPrefix = st.currency === 'USD' ? '$' : '';
-
-                    return `
-                    <div onclick="window.app.openStockModal('${st.id}')" class="bg-[#FAF8F5] dark:bg-[#25221F] hover:bg-white dark:hover:bg-[#2C2824] rounded-2xl p-3.5 border border-[#E2DBD0] dark:border-[#38332E] muji-card cursor-pointer transition">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded-md bg-[#EFECE6] dark:bg-[#322E2A] text-[#5C5346] dark:text-[#D6CFC5]">${st.symbol}</span>
-                                    <span class="text-sm font-semibold text-[#2C2926] dark:text-[#F3EFEA]">${st.name || st.symbol}</span>
-                                </div>
-                                <div class="text-[11px] text-[#8C8275] mt-1 tabular-nums">
-                                    ${shares.toLocaleString()} 股 × 收盤 ${currPrefix}${price}（成本 ${currPrefix}${cost}）
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                <div class="text-sm font-semibold text-[#2C2926] dark:text-[#FAF8F5] tabular-nums">${formatTWD(mktValTwd + divValTwd)}</div>
-                                <div class="text-[11px] font-semibold ${isPos ? 'text-[#4B6342] dark:text-[#8FB082]' : 'text-[#8B2626] dark:text-[#E07A7A]'} tabular-nums">
-                                    含息 ${isPos ? '+' : ''}${formatTWD(totalRetTwd)} (${isPos ? '+' : ''}${retPct.toFixed(1)}%)
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2 mt-2.5 pt-2 border-t border-[#EAE4D9] dark:border-[#36312C] text-[10px] font-semibold">
-                            <span class="px-2 py-0.5 rounded-md bg-[#F2EFE8] dark:bg-[#1E1C19] text-[#5C5346] dark:text-[#C7BEB2] tabular-nums">
-                                價差 ${capGainTwd >= 0 ? '+' : ''}${formatTWD(capGainTwd)}
-                            </span>
-                            <span class="px-2 py-0.5 rounded-md bg-[#F7F2E7] dark:bg-[#2E281E] text-[#9A6B2F] dark:text-[#D9A760] tabular-nums">
-                                已領息 +${formatTWD(divValTwd)}
-                            </span>
-                        </div>
-                    </div>`;
-                }).join('');
+                showToast(`已更新 ${updatedCount} 檔持股最近收盤價`);
             }
 
             function openStockModal(stockId = null) {
                 editingStockId = stockId;
                 const title = document.getElementById('stock-modal-title');
                 const delBtn = document.getElementById('btn-delete-stock');
-                const hint = document.getElementById('stock-quote-hint');
 
                 if (stockId) {
-                    const st = state.stocks.find(s => s.id === stockId);
-                    if (!st) return;
-                    title.textContent = `編輯持股 (${st.symbol})`;
-                    document.getElementById('stock-symbol-input').value = st.symbol;
-                    document.getElementById('stock-name-input').value = st.name;
-                    document.getElementById('stock-currency-input').value = st.currency;
-                    document.getElementById('stock-shares-input').value = st.shares;
-                    document.getElementById('stock-cost-input').value = st.avgCost;
-                    document.getElementById('stock-price-input').value = st.lastPrice;
-                    document.getElementById('stock-dividend-input').value = st.dividendsReceived || 0;
-                    hint.textContent = '可點擊「查收盤」更新最近一日收盤價';
+                    const s = state.stocks.find(item => item.id === stockId);
+                    if (!s) return;
+                    title.textContent = '編輯持股明細';
+                    document.getElementById('stock-symbol-input').value = s.symbol;
+                    document.getElementById('stock-name-input').value = s.name || '';
+                    document.getElementById('stock-currency-input').value = s.currency || 'TWD';
+                    document.getElementById('stock-shares-input').value = s.shares;
+                    document.getElementById('stock-cost-input').value = s.cost;
+                    document.getElementById('stock-price-input').value = s.price;
+                    document.getElementById('stock-dividend-input').value = s.dividend || 0;
                     delBtn.classList.remove('hidden');
                 } else {
                     title.textContent = '新增股票持股';
@@ -1444,7 +1490,6 @@
                     document.getElementById('stock-cost-input').value = '';
                     document.getElementById('stock-price-input').value = '';
                     document.getElementById('stock-dividend-input').value = '0';
-                    hint.textContent = '輸入代號點擊「查收盤」自動帶入最近一日收盤價';
                     delBtn.classList.add('hidden');
                 }
                 document.getElementById('stock-modal').classList.remove('hidden');
@@ -1457,39 +1502,41 @@
 
             function saveStockHolding() {
                 const symbol = document.getElementById('stock-symbol-input').value.trim().toUpperCase();
-                const name = document.getElementById('stock-name-input').value.trim() || symbol;
+                const name = document.getElementById('stock-name-input').value.trim();
                 const currency = document.getElementById('stock-currency-input').value;
                 const shares = parseFloat(document.getElementById('stock-shares-input').value) || 0;
-                const avgCost = parseFloat(document.getElementById('stock-cost-input').value) || 0;
-                const lastPrice = parseFloat(document.getElementById('stock-price-input').value) || 0;
-                const dividendsReceived = parseFloat(document.getElementById('stock-dividend-input').value) || 0;
+                const cost = parseFloat(document.getElementById('stock-cost-input').value) || 0;
+                const price = parseFloat(document.getElementById('stock-price-input').value) || cost;
+                const dividend = parseFloat(document.getElementById('stock-dividend-input').value) || 0;
 
-                if (!symbol || shares <= 0 || lastPrice <= 0) {
-                    showToast('請完整填寫代號、股數與收盤價');
+                if (!symbol || shares <= 0) {
+                    showToast('請輸入股票代號與持有股數');
                     return;
                 }
 
                 if (editingStockId) {
-                    const idx = state.stocks.findIndex(s => s.id === editingStockId);
-                    if (idx !== -1) {
-                        state.stocks[idx] = {
-                            ...state.stocks[idx],
-                            symbol, name, currency, shares, avgCost, lastPrice, dividendsReceived
-                        };
+                    const s = state.stocks.find(item => item.id === editingStockId);
+                    if (s) {
+                        Object.assign(s, { symbol, name, currency, shares, cost, price, dividend });
                     }
+                    showToast('已更新持股明細');
                 } else {
                     state.stocks.push({
                         id: 'stk_' + Date.now(),
-                        symbol, name, currency, shares, avgCost, lastPrice, dividendsReceived
+                        symbol,
+                        name,
+                        currency,
+                        shares,
+                        cost,
+                        price,
+                        dividend
                     });
+                    showToast('已新增持股');
                 }
-
                 saveState();
                 closeStockModal();
-                renderStockPortfolio();
+                renderStocksTab();
                 renderSummary();
-                renderTrendCharts();
-                showToast('持股資料已儲存');
             }
 
             function deleteStock() {
@@ -1497,119 +1544,105 @@
                 state.stocks = state.stocks.filter(s => s.id !== editingStockId);
                 saveState();
                 closeStockModal();
-                renderStockPortfolio();
+                renderStocksTab();
                 renderSummary();
-                renderTrendCharts();
                 showToast('已刪除該檔持股');
+            }
+
+            function openFxModal() {
+                document.getElementById('fx-rate-input').value = state.usdTwdRate || 32.5;
+                document.getElementById('fx-modal').classList.remove('hidden');
+            }
+
+            function closeFxModal() {
+                document.getElementById('fx-modal').classList.add('hidden');
+            }
+
+            function saveFxRate() {
+                const val = parseFloat(document.getElementById('fx-rate-input').value);
+                if (val > 0) {
+                    state.usdTwdRate = val;
+                    saveState();
+                    renderStocksTab();
+                    renderSummary();
+                    showToast(`已更新匯率為 ${val.toFixed(2)}`);
+                }
+                closeFxModal();
             }
 
             // ================= 週期性資產快照與折線圖 =================
             function recordStockSnapshot() {
                 const totals = calcPortfolioTotals();
-                const mk = getMonthKey();
-                const today = new Date();
-                const label = `${mk}-${String(today.getDate()).padStart(2, '0')}`;
-
-                state.snapshots.push({
+                const todayStr = new Date().toISOString().slice(0, 10);
+                const existingIdx = state.snapshots.findIndex(s => s.date === todayStr);
+                const snap = {
                     id: 'snap_' + Date.now(),
-                    dateLabel: label,
-                    stockMarketValueTwd: Math.round(totals.marketValueTwd),
-                    totalDividendsTwd: Math.round(totals.dividendsTwd),
-                    totalWithDivTwd: Math.round(totals.totalWithDivTwd)
-                });
+                    date: todayStr,
+                    marketTwd: Math.round(totals.totalMarketTwd),
+                    withDivTwd: Math.round(totals.totalWithDivTwd)
+                };
+                if (existingIdx >= 0) {
+                    state.snapshots[existingIdx] = snap;
+                } else {
+                    state.snapshots.push(snap);
+                    state.snapshots.sort((a, b) => a.date.localeCompare(b.date));
+                }
                 saveState();
-                renderAssetSnapshotsChart();
-                showToast(`已紀錄 ${label} 資產快照`);
+                renderSnapshotChart();
+                renderSnapshotHistoryList();
+                showToast(`已紀錄 ${todayStr} 資產快照`);
             }
 
             function setSnapshotRange(range) {
-                snapshotChartRange = range;
+                snapshotRange = range;
                 [6, 12, 0].forEach(r => {
                     const btn = document.getElementById(`range-btn-${r}`);
-                    if (!btn) return;
-                    if (r === range) {
-                        btn.className = 'px-2 py-1 rounded-lg bg-[#FAF8F5] dark:bg-[#36322D] text-[#3E3A36] dark:text-[#FAF8F5] shadow-2xs';
-                    } else {
-                        btn.className = 'px-2 py-1 rounded-lg text-[#8C8275]';
+                    if (btn) {
+                        btn.className = r === range
+                            ? 'px-2 py-1 rounded-lg bg-[#FAF8F5] dark:bg-[#36322D] text-[#3E3A36] dark:text-[#FAF8F5] shadow-2xs'
+                            : 'px-2 py-1 rounded-lg text-[#8C8275]';
                     }
                 });
-                renderAssetSnapshotsChart();
+                renderSnapshotChart();
             }
 
-            function toggleSnapshotHistory() {
-                snapshotHistoryOpen = !snapshotHistoryOpen;
-                const list = document.getElementById('snapshot-history-list');
-                if (list) list.classList.toggle('hidden', !snapshotHistoryOpen);
-            }
-
-            function deleteSnapshot(snapId) {
-                state.snapshots = state.snapshots.filter(s => s.id !== snapId);
-                saveState();
-                renderAssetSnapshotsChart();
-                showToast('已移除該期快照');
-            }
-
-            function renderAssetSnapshotsChart() {
+            function renderSnapshotChart() {
+                const canvas = document.getElementById('asset-snapshots-chart');
                 const countLabel = document.getElementById('snapshot-count-label');
-                const historyList = document.getElementById('snapshot-history-list');
                 if (countLabel) countLabel.textContent = `已紀錄 ${state.snapshots.length} 期資產快照`;
+                if (!canvas) return;
 
-                if (historyList) {
-                    if (state.snapshots.length === 0) {
-                        historyList.innerHTML = `<p class="text-[11px] text-[#8C8275] text-center py-2">尚無歷史快照，點擊上方「紀錄本期快照」開始累積曲線</p>`;
-                    } else {
-                        historyList.innerHTML = [...state.snapshots].reverse().map(s => `
-                            <div class="flex items-center justify-between bg-[#F2EFE8] dark:bg-[#1E1C19] px-3 py-2 rounded-xl text-xs">
-                                <div>
-                                    <span class="font-semibold text-[#5C5346] dark:text-[#D6CFC5]">${s.dateLabel}</span>
-                                    <span class="text-[#7F1D1D] dark:text-[#E07A7A] font-semibold ml-2 tabular-nums">${formatTWD(s.totalWithDivTwd)}</span>
-                                </div>
-                                <button type="button" onclick="window.app.deleteSnapshot('${s.id}')" class="text-[#8C8275] hover:text-[#8B2626] px-1.5">
-                                    <i class="fa-solid fa-trash-can text-[11px]"></i>
-                                </button>
-                            </div>
-                        `).join('');
-                    }
+                if (snapshotChartInstance) {
+                    snapshotChartInstance.destroy();
                 }
 
-                const canvas = document.getElementById('asset-snapshots-chart');
-                if (!canvas || typeof Chart === 'undefined') return;
-
-                const slice = snapshotChartRange > 0
-                    ? state.snapshots.slice(-snapshotChartRange)
-                    : state.snapshots;
-
-                const labels = slice.length > 0 ? slice.map(s => s.dateLabel) : ['尚無快照'];
-                const withDivData = slice.length > 0 ? slice.map(s => s.totalWithDivTwd) : [0];
-                const mktOnlyData = slice.length > 0 ? slice.map(s => s.stockMarketValueTwd) : [0];
-
+                const list = snapshotRange > 0 ? state.snapshots.slice(-snapshotRange) : state.snapshots;
                 const isDark = state.theme === 'dark';
-                const gridColor = isDark ? 'rgba(214, 207, 197, 0.1)' : 'rgba(140, 130, 117, 0.15)';
-                const tickColor = isDark ? '#A3998B' : '#7A7064';
+                const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(92,83,70,0.1)';
+                const textColor = isDark ? '#A3998B' : '#7A7064';
 
-                if (snapshotsChartInstance) snapshotsChartInstance.destroy();
-                snapshotsChartInstance = new Chart(canvas.getContext('2d'), {
+                snapshotChartInstance = new Chart(canvas, {
                     type: 'line',
                     data: {
-                        labels,
+                        labels: list.length ? list.map(s => s.date.slice(5)) : ['尚無快照'],
                         datasets: [
                             {
                                 label: '含息總資產',
-                                data: withDivData,
+                                data: list.length ? list.map(s => s.withDivTwd) : [0],
                                 borderColor: '#7F1D1D',
-                                backgroundColor: 'rgba(127, 29, 29, 0.12)',
-                                fill: true,
-                                tension: 0.35,
-                                pointRadius: 4
+                                backgroundColor: 'rgba(127, 29, 29, 0.1)',
+                                borderWidth: 2.5,
+                                tension: 0.3,
+                                fill: true
                             },
                             {
                                 label: '純帳面市值',
-                                data: mktOnlyData,
+                                data: list.length ? list.map(s => s.marketTwd) : [0],
                                 borderColor: '#5B7052',
                                 borderDash: [4, 4],
-                                fill: false,
-                                tension: 0.35,
-                                pointRadius: 3
+                                borderWidth: 2,
+                                tension: 0.3,
+                                fill: false
                             }
                         ]
                     },
@@ -1618,85 +1651,158 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                labels: { color: tickColor, font: { size: 11, family: '"Noto Sans TC", "Inter", sans-serif' } }
+                                labels: { color: textColor, font: { size: 11 } }
                             }
                         },
                         scales: {
-                            x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 10, family: '"Noto Sans TC", "Inter", sans-serif' } } },
-                            y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 10, family: '"Noto Sans TC", "Inter", sans-serif' } } }
+                            x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
+                            y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
                         }
                     }
                 });
             }
 
+            function toggleSnapshotHistory() {
+                const el = document.getElementById('snapshot-history-list');
+                if (el) el.classList.toggle('hidden');
+            }
+
+            function renderSnapshotHistoryList() {
+                const el = document.getElementById('snapshot-history-list');
+                if (!el) return;
+                if (state.snapshots.length === 0) {
+                    el.innerHTML = `<div class="text-[11px] text-[#8C8275] py-2 text-center">尚無歷史快照，點擊上方「紀錄本期快照」即可開始累積</div>`;
+                    return;
+                }
+                el.innerHTML = [...state.snapshots].reverse().map(s => `
+                    <div class="flex items-center justify-between bg-[#F2EFE8] dark:bg-[#1B1916] px-3 py-2 rounded-xl text-xs">
+                        <span class="font-semibold text-[#5C5346] dark:text-[#D6CFC5] tabular-nums">${s.date}</span>
+                        <div class="flex items-center gap-3">
+                            <span class="font-semibold text-[#7F1D1D] dark:text-[#E07A7A] tabular-nums">${formatTWD(s.withDivTwd)}</span>
+                            <button type="button" onclick="window.app.deleteSnapshot('${s.id}')" class="text-[#8C8275] hover:text-[#8B2626]">
+                                <i class="fa-solid fa-trash-can text-[11px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            function deleteSnapshot(id) {
+                state.snapshots = state.snapshots.filter(s => s.id !== id);
+                saveState();
+                renderSnapshotChart();
+                renderSnapshotHistoryList();
+                showToast('已刪除該期快照');
+            }
+
             // ================= 資產趨勢分頁圖表 =================
+            function getRecentMonthKeys(count = 6) {
+                const keys = [];
+                let y = currentYear;
+                let m = currentMonth;
+                for (let i = 0; i < count; i++) {
+                    keys.unshift(getMonthKey(y, m));
+                    m -= 1;
+                    if (m < 1) { m = 12; y -= 1; }
+                }
+                return keys;
+            }
+
             function renderTrendCharts() {
-                if (typeof Chart === 'undefined') return;
                 const isDark = state.theme === 'dark';
-                const gridColor = isDark ? 'rgba(214, 207, 197, 0.1)' : 'rgba(140, 130, 117, 0.15)';
-                const tickColor = isDark ? '#A3998B' : '#7A7064';
+                const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(92,83,70,0.1)';
+                const textColor = isDark ? '#A3998B' : '#7A7064';
 
-                const trendCanvas = document.getElementById('monthly-cash-trend-chart');
-                if (trendCanvas) {
-                    const labels = [];
-                    const values = [];
-                    for (let i = 5; i >= 0; i--) {
-                        let y = currentYear;
-                        let m = currentMonth - i;
-                        while (m < 1) { m += 12; y -= 1; }
-                        const mk = getMonthKey(y, m);
-                        labels.push(mk);
-                        const net = calcMonthNetCash(mk);
-                        values.push(net !== null ? net : 0);
-                    }
+                const monthKeys = getRecentMonthKeys(6);
+                const cashSeries = monthKeys.map(mk => calcMonthNetCash(mk));
 
-                    if (monthlyTrendChartInstance) monthlyTrendChartInstance.destroy();
-                    monthlyTrendChartInstance = new Chart(trendCanvas.getContext('2d'), {
+                // 1. 近 6 個月淨流動資金變化
+                const cashCanvas = document.getElementById('monthly-cash-trend-chart');
+                if (cashCanvas) {
+                    if (cashTrendChartInstance) cashTrendChartInstance.destroy();
+                    cashTrendChartInstance = new Chart(cashCanvas, {
                         type: 'bar',
                         data: {
-                            labels,
+                            labels: monthKeys,
                             datasets: [{
                                 label: '淨流動資金 (NT$)',
-                                data: values,
-                                backgroundColor: '#5B7052',
-                                borderRadius: 6
+                                data: cashSeries.map(v => v ?? 0),
+                                backgroundColor: 'rgba(91, 112, 82, 0.75)',
+                                borderRadius: 8
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    labels: { color: tickColor, font: { size: 12, family: '"Noto Sans TC", "Inter", sans-serif' } }
-                                }
-                            },
+                            plugins: { legend: { display: false } },
                             scales: {
-                                x: { grid: { display: false }, ticks: { color: tickColor, font: { size: 11, family: '"Noto Sans TC", "Inter", sans-serif' } } },
-                                y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { size: 11, family: '"Noto Sans TC", "Inter", sans-serif' } } }
+                                x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
+                                y: { grid: { color: gridColor }, ticks: { color: textColor, font: { size: 10 } } }
                             }
                         }
                     });
                 }
 
-                const allocCanvas = document.getElementById('asset-allocation-chart');
-                if (allocCanvas) {
-                    const mk = getMonthKey();
-                    const monthData = state.balances[mk] || {};
-                    let cashAssets = 0;
-                    state.accounts.forEach(acc => {
-                        if (acc.type === 'asset') {
-                            cashAssets += Number(monthData[acc.id]) || 0;
+                // 2. 淨流動資金每月差異值曲線
+                const extendedKeys = getRecentMonthKeys(7);
+                const diffLabels = extendedKeys.slice(1);
+                const diffValues = diffLabels.map((mk, idx) => {
+                    const curr = calcMonthNetCash(mk);
+                    const prev = calcMonthNetCash(extendedKeys[idx]);
+                    if (curr === null || prev === null) return null;
+                    return curr - prev;
+                });
+
+                const diffCanvas = document.getElementById('monthly-cash-diff-chart');
+                if (diffCanvas) {
+                    if (cashDiffChartInstance) cashDiffChartInstance.destroy();
+                    cashDiffChartInstance = new Chart(diffCanvas, {
+                        type: 'line',
+                        data: {
+                            labels: diffLabels,
+                            datasets: [{
+                                label: '較上月增減 (NT$)',
+                                data: diffValues,
+                                borderColor: '#5C5346',
+                                borderWidth: 2.5,
+                                spanGaps: false,
+                                tension: 0.25,
+                                pointRadius: 5,
+                                pointBackgroundColor: diffValues.map(v => (v === null ? 'transparent' : (v >= 0 ? '#5B7052' : '#7F1D1D')))
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                                x: { grid: { display: false }, ticks: { color: textColor, font: { size: 10 } } },
+                                y: {
+                                    grid: {
+                                        color: ctx => (ctx.tick && ctx.tick.value === 0 ? '#7F1D1D' : gridColor),
+                                        lineWidth: ctx => (ctx.tick && ctx.tick.value === 0 ? 1.5 : 1)
+                                    },
+                                    ticks: { color: textColor, font: { size: 10 } }
+                                }
+                            }
                         }
                     });
-                    const stockTotals = calcPortfolioTotals();
+                }
 
+                // 3. 整體資產配置佔比圓餅圖
+                const allocCanvas = document.getElementById('asset-allocation-chart');
+                if (allocCanvas) {
                     if (allocationChartInstance) allocationChartInstance.destroy();
-                    allocationChartInstance = new Chart(allocCanvas.getContext('2d'), {
+                    const mk = getMonthKey();
+                    const netCash = Math.max(0, calcMonthNetCash(mk) || 0);
+                    const stockVal = Math.max(0, Math.round(calcPortfolioTotals().totalWithDivTwd));
+
+                    allocationChartInstance = new Chart(allocCanvas, {
                         type: 'doughnut',
                         data: {
-                            labels: ['銀行流動現金', '股票含息總資產'],
+                            labels: ['銀行淨流動資金', '股票含息總資產'],
                             datasets: [{
-                                data: [Math.max(0, cashAssets), Math.max(0, Math.round(stockTotals.totalWithDivTwd))],
+                                data: (netCash === 0 && stockVal === 0) ? [1, 0] : [netCash, stockVal],
                                 backgroundColor: ['#5B7052', '#7F1D1D'],
                                 borderWidth: 0
                             }]
@@ -1708,7 +1814,7 @@
                             plugins: {
                                 legend: {
                                     position: 'bottom',
-                                    labels: { color: tickColor, font: { size: 12, family: '"Noto Sans TC", "Inter", sans-serif' } }
+                                    labels: { color: textColor, font: { size: 11 } }
                                 }
                             }
                         }
@@ -1716,68 +1822,65 @@
                 }
             }
 
-            // ================= 匯率彈窗 =================
-            function openFxModal() {
-                document.getElementById('fx-rate-input').value = state.usdTwdRate;
-                document.getElementById('fx-modal').classList.remove('hidden');
-            }
-
-            function closeFxModal() {
-                document.getElementById('fx-modal').classList.add('hidden');
-            }
-
-            function saveFxRate() {
-                const val = parseFloat(document.getElementById('fx-rate-input').value);
-                if (val && val > 0) {
-                    state.usdTwdRate = val;
-                    saveState();
-                    renderStockPortfolio();
-                    renderSummary();
-                    renderTrendCharts();
-                    showToast(`已更新美金匯率為 ${val}`);
+            // ================= 管理備份、起始日、Email 排程 =================
+            function populateCycleStartDayOptions() {
+                const select = document.getElementById('cycle-start-day-select');
+                if (!select) return;
+                let opts = '';
+                for (let d = 1; d <= 28; d++) {
+                    opts += `<option value="${d}">每月 ${d} 號</option>`;
                 }
-                closeFxModal();
+                select.innerHTML = opts;
+                select.value = String(state.cycleStartDay || 1);
+                updateCycleSettingPreview();
             }
 
-            // ================= 備份匯出、還原與自動備份 =================
-            function buildBackupPayload() {
-                return JSON.stringify({
-                    app: '你記帳嗎?',
-                    exportedAt: new Date().toISOString(),
-                    data: state
-                }, null, 2);
+            function setCycleStartDay(dayVal) {
+                state.cycleStartDay = Math.min(28, Math.max(1, parseInt(dayVal, 10) || 1));
+                saveState();
+                applyCycleDefaultMonth();
+                updateMonthHeaderUI();
+                updateCycleSettingPreview();
+                renderAccountsTab();
+                showToast(`已設定每月 ${state.cycleStartDay} 號起算（月底結算）`);
+            }
+
+            function updateCycleSettingPreview() {
+                const el = document.getElementById('cycle-setting-preview');
+                const d = Number(state.cycleStartDay) || 1;
+                if (el) el.textContent = `目前週期：每月 ${d} 號 ～ 月底`;
             }
 
             function exportJSON() {
-                const blob = new Blob([buildBackupPayload()], { type: 'application/json' });
+                const jsonStr = JSON.stringify(state, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
+                const dateStr = new Date().toISOString().slice(0, 10);
                 a.href = url;
-                a.download = `你記帳嗎_完整備份_${getMonthKey()}.json`;
+                a.download = `你記帳嗎_完整備份_${dateStr}.json`;
                 a.click();
                 URL.revokeObjectURL(url);
                 showToast('已匯出 JSON 完整備份檔');
             }
 
             function exportCSV() {
+                const mk = getMonthKey();
+                const monthBal = state.balances[mk] || {};
                 const rows = [['月份', '帳戶名稱', '屬性', '分類', '金額(TWD)']];
-                Object.keys(state.balances).sort().forEach(mk => {
-                    state.accounts.forEach(acc => {
-                        const val = state.balances[mk][acc.id];
-                        if (val !== undefined) {
-                            rows.push([mk, acc.name, acc.type === 'liability' ? '負債' : '資產', acc.category, val]);
-                        }
-                    });
+                state.accounts.forEach(acc => {
+                    const val = monthBal[acc.id] ?? 0;
+                    rows.push([mk, acc.name, acc.type === 'liability' ? '負債' : '資產', acc.category, acc.type === 'liability' ? -val : val]);
                 });
-                const csvContent = '\uFEFF' + rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+                const csvContent = '\uFEFF' + rows.map(r => r.join(',')).join('\n');
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `你記帳嗎_帳戶盤點報表_${getMonthKey()}.csv`;
+                a.download = `你記帳嗎_帳戶報表_${mk}.csv`;
                 a.click();
                 URL.revokeObjectURL(url);
-                showToast('已匯出 Excel 報表 (CSV)');
+                showToast(`已匯出 ${mk} Excel 報表 (CSV)`);
             }
 
             function importJSON(event) {
@@ -1787,28 +1890,62 @@
                 reader.onload = function (e) {
                     try {
                         const parsed = JSON.parse(e.target.result);
-                        const restored = parsed.data ? parsed.data : parsed;
-                        if (restored.accounts && restored.balances) {
-                            state = { ...state, ...restored };
+                        if (parsed && Array.isArray(parsed.accounts)) {
+                            state = {
+                                ...state,
+                                ...parsed,
+                                autoBackup: { ...state.autoBackup, ...(parsed.autoBackup || {}) }
+                            };
                             saveState();
                             applyTheme();
-                            renderMemo();
-                            renderSummary();
-                            renderAccountList();
-                            renderStockPortfolio();
-                            renderAssetSnapshotsChart();
-                            renderTrendCharts();
-                            updateAutoBackupUI();
+                            populateCycleStartDayOptions();
+                            renderAccountsTab();
                             showToast('備份資料還原成功！');
                         } else {
                             showToast('備份檔格式不正確');
                         }
                     } catch (err) {
-                        showToast('讀取備份檔失敗');
+                        showToast('無法解析該備份檔案');
                     }
                 };
                 reader.readAsText(file);
                 event.target.value = '';
+            }
+
+            // ================= 自動備份與儲存路徑 =================
+            function toggleAutoBackup() {
+                state.autoBackup.enabled = !state.autoBackup.enabled;
+                saveState();
+                updateAutoBackupUI();
+                showToast(state.autoBackup.enabled ? '已開啟每月底自動備份' : '已關閉自動備份');
+                if (state.autoBackup.enabled) checkAndRunMonthEndAutoBackup();
+            }
+
+            function setBackupPathMode(mode) {
+                state.autoBackup.pathMode = mode;
+                saveState();
+                updateAutoBackupUI();
+                showToast('已更新自動備份儲存方式');
+            }
+
+            async function pickFixedDirectory() {
+                if (!window.showDirectoryPicker) {
+                    showToast('此瀏覽器不支援鎖定本機資料夾，建議改用「手機自選雲端/資料夾」');
+                    return;
+                }
+                try {
+                    const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+                    fixedDirectoryHandle = handle;
+                    state.autoBackup.pathMode = 'directory';
+                    state.autoBackup.fixedDirName = handle.name || '已指定資料夾';
+                    saveState();
+                    updateAutoBackupUI();
+                    showToast(`已指定資料夾：${state.autoBackup.fixedDirName}`);
+                } catch (e) {
+                    if (e.name !== 'AbortError') {
+                        showToast('未完成資料夾選取');
+                    }
+                }
             }
 
             function updateAutoBackupUI() {
@@ -1816,6 +1953,7 @@
                 const statusText = document.getElementById('auto-backup-status-text');
                 const badge = document.getElementById('backup-path-badge');
                 const desc = document.getElementById('backup-path-desc');
+                const dirNameEl = document.getElementById('fixed-dir-name');
 
                 if (btn) {
                     if (state.autoBackup.enabled) {
@@ -1829,185 +1967,151 @@
 
                 if (statusText) {
                     statusText.textContent = state.autoBackup.lastBackupTime
-                        ? `上次自動備份：${state.autoBackup.lastBackupTime}`
-                        : '上次自動備份：尚未執行（將於每月底自動觸發）';
+                        ? `上次自動備份：${state.autoBackup.lastBackupMonth}（${state.autoBackup.lastBackupTime}）`
+                        : '上次自動備份：尚未執行（每月最後 3 天自動觸發）';
                 }
 
                 const mode = state.autoBackup.pathMode || 'share';
+                if (dirNameEl && state.autoBackup.fixedDirName) {
+                    dirNameEl.textContent = `目前鎖定資料夾：${state.autoBackup.fixedDirName}`;
+                }
+
+                const modes = {
+                    share: {
+                        badge: '手機自選雲端/資料夾',
+                        desc: '月底觸發時喚起手機系統選單，可自選存入 iCloud、Google 雲端硬碟或手機任意資料夾。'
+                    },
+                    directory: {
+                        badge: '指定本機固定資料夾',
+                        desc: `將自動寫入本機指定資料夾（${state.autoBackup.fixedDirName || '尚未選取'}）。`
+                    },
+                    download: {
+                        badge: '瀏覽器預設下載',
+                        desc: '自動下載備份檔案至瀏覽器預設 Downloads 資料夾。'
+                    }
+                };
+
+                if (badge) badge.textContent = modes[mode]?.badge || modes.share.badge;
+                if (desc) desc.textContent = modes[mode]?.desc || modes.share.desc;
+
                 ['share', 'directory', 'download'].forEach(m => {
-                    const el = document.getElementById(`path-opt-${m}`);
-                    if (!el) return;
+                    const card = document.getElementById(`path-opt-${m}`);
+                    if (!card) return;
+                    const icon = card.querySelector('i');
                     if (m === mode) {
-                        el.className = 'text-left p-2.5 rounded-xl border-2 border-[#5C5346] bg-[#EFECE4]/70 dark:bg-[#2F2B27] transition flex items-center justify-between';
+                        card.className = 'text-left p-2.5 rounded-xl border border-[#5C5346] bg-[#EFECE4]/70 dark:bg-[#2F2B27] transition flex items-center justify-between';
+                        if (icon) icon.classList.add('text-[#5B7052]');
                     } else {
-                        el.className = 'text-left p-2.5 rounded-xl border border-[#E0DAD0] dark:border-[#38332E] hover:bg-[#F4F1EA] transition flex items-center justify-between';
+                        card.className = 'text-left p-2.5 rounded-xl border border-[#E0DAD0] dark:border-[#38332E] hover:bg-[#F4F1EA] transition flex items-center justify-between';
+                        if (icon) icon.classList.remove('text-[#5B7052]');
                     }
                 });
-
-                const dirNameEl = document.getElementById('fixed-dir-name');
-                if (dirNameEl) {
-                    dirNameEl.textContent = state.autoBackup.fixedDirName
-                        ? `已指定資料夾：${state.autoBackup.fixedDirName}`
-                        : '點擊挑選本機資料夾（Android Chrome / 電腦版適用）';
-                }
-
-                if (badge && desc) {
-                    if (mode === 'directory') {
-                        badge.textContent = state.autoBackup.fixedDirName ? `本機：${state.autoBackup.fixedDirName}` : '指定本機資料夾';
-                        desc.textContent = '月底觸發時將自動寫入您指定的本機資料夾。';
-                    } else if (mode === 'download') {
-                        badge.textContent = '預設下載 (Downloads)';
-                        desc.textContent = '月底觸發時自動下載至裝置預設的 Downloads 資料夾。';
-                    } else {
-                        badge.textContent = '手機自選雲端/資料夾';
-                        desc.textContent = '月底觸發時喚起手機系統選單，可自選存入 iCloud、Google 雲端硬碟或手機任意資料夾。';
-                    }
-                }
-            }
-
-            function toggleAutoBackup() {
-                state.autoBackup.enabled = !state.autoBackup.enabled;
-                saveState();
-                updateAutoBackupUI();
-                showToast(state.autoBackup.enabled ? '已開啟每月底自動備份' : '已關閉自動備份');
-                if (state.autoBackup.enabled) {
-                    checkAndRunAutoBackup();
-                }
-            }
-
-            function setBackupPathMode(mode) {
-                state.autoBackup.pathMode = mode;
-                saveState();
-                updateAutoBackupUI();
-                showToast('已更新自動備份儲存路徑方式');
-            }
-
-            async function pickFixedDirectory() {
-                if (typeof window.showDirectoryPicker !== 'function') {
-                    setBackupPathMode('share');
-                    showToast('此手機瀏覽器不支援鎖定本機目錄，已為您切換為「手機自選雲端/資料夾」模式');
-                    return;
-                }
-                try {
-                    const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
-                    fixedDirectoryHandle = handle;
-                    state.autoBackup.pathMode = 'directory';
-                    state.autoBackup.fixedDirName = handle.name;
-                    saveState();
-                    updateAutoBackupUI();
-                    showToast(`已鎖定備份資料夾：${handle.name}`);
-                } catch (e) {
-                    if (e.name !== 'AbortError') {
-                        showToast('無法取得資料夾權限，請改用手機自選雲端模式');
-                    }
-                }
             }
 
             async function triggerBackupNow(isManualTest = false) {
-                const filename = `你記帳嗎_月底自動備份_${getMonthKey()}.json`;
-                const payload = buildBackupPayload();
-                const blob = new Blob([payload], { type: 'application/json' });
+                const today = new Date();
+                const ym = getMonthKey(today.getFullYear(), today.getMonth() + 1);
+                const filename = `你記帳嗎_月底自動備份_${ym}.json`;
+                const jsonStr = JSON.stringify(state, null, 2);
+                const blob = new Blob([jsonStr], { type: 'application/json' });
                 const mode = state.autoBackup.pathMode || 'share';
 
-                try {
-                    if (mode === 'directory' && fixedDirectoryHandle) {
+                let saved = false;
+                if (mode === 'directory' && fixedDirectoryHandle) {
+                    try {
                         const fileHandle = await fixedDirectoryHandle.getFileHandle(filename, { create: true });
                         const writable = await fileHandle.createWritable();
                         await writable.write(blob);
                         await writable.close();
-                        showToast(`已自動寫入資料夾：${state.autoBackup.fixedDirName}`);
-                    } else if (mode === 'share' && navigator.canShare) {
+                        saved = true;
+                        showToast(`已自動備份至資料夾：${state.autoBackup.fixedDirName}`);
+                    } catch (e) {
+                        console.warn('資料夾寫入失敗，退回下載模式:', e);
+                    }
+                } else if (mode === 'share' && navigator.canShare) {
+                    try {
                         const file = new File([blob], filename, { type: 'application/json' });
                         if (navigator.canShare({ files: [file] })) {
                             await navigator.share({
+                                files: [file],
                                 title: '你記帳嗎? 月底自動備份',
-                                text: '請選擇要儲存備份檔的雲端硬碟或手機資料夾',
-                                files: [file]
+                                text: `${ym} 帳本備份檔案`
                             });
-                            showToast('已完成系統分享/存檔操作');
-                        } else {
-                            exportJSON();
+                            saved = true;
+                            showToast('已完成自動備份分享儲存');
                         }
-                    } else {
-                        const url = URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = filename;
-                        a.click();
-                        URL.revokeObjectURL(url);
-                        if (isManualTest) showToast('已下載測試備份檔');
-                    }
-
-                    const d = new Date();
-                    state.autoBackup.lastBackupMonth = getMonthKey(d.getFullYear(), d.getMonth() + 1);
-                    state.autoBackup.lastBackupTime = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-                    saveState();
-                    updateAutoBackupUI();
-                } catch (err) {
-                    if (err.name !== 'AbortError') {
-                        exportJSON();
+                    } catch (e) {
+                        if (e.name === 'AbortError') return;
                     }
                 }
+
+                if (!saved) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast(isManualTest ? '已下載測試備份檔案' : `已完成 ${ym} 月底自動備份`);
+                }
+
+                state.autoBackup.lastBackupMonth = ym;
+                state.autoBackup.lastBackupTime = new Date().toLocaleString('zh-TW', { hour12: false });
+                saveState();
+                updateAutoBackupUI();
             }
 
-            function checkAndRunAutoBackup() {
-                if (!state.autoBackup.enabled) return;
-                const d = new Date();
-                const y = d.getFullYear();
-                const m = d.getMonth() + 1;
-                const day = d.getDate();
-                const lastDayOfMonth = new Date(y, m, 0).getDate();
-                const currentMk = getMonthKey(y, m);
+            function checkAndRunMonthEndAutoBackup() {
+                if (!state.autoBackup?.enabled) return;
+                const today = new Date();
+                const y = today.getFullYear();
+                const m = today.getMonth() + 1;
+                const d = today.getDate();
+                const lastDay = getDaysInMonth(y, m);
+                const ym = getMonthKey(y, m);
 
-                if (day >= lastDayOfMonth - 2 && state.autoBackup.lastBackupMonth !== currentMk) {
+                if (d >= lastDay - 2 && state.autoBackup.lastBackupMonth !== ym) {
                     triggerBackupNow(false);
                 }
             }
 
-            // ================= 範例資料與清空確認 =================
+            // ================= 範例資料與清空 =================
             function loadDemoData() {
-                const m0 = getMonthKey();
-                const m1 = getPrevMonthKey();
-                let y2 = currentYear;
-                let m2Num = currentMonth - 2;
-                while (m2Num < 1) { m2Num += 12; y2 -= 1; }
-                const m2 = getMonthKey(y2, m2Num);
-
+                const keys = getRecentMonthKeys(6);
                 state.accounts = [
                     { id: 'acc_1', name: '國泰世華活存', type: 'asset', category: '日常活存' },
                     { id: 'acc_2', name: 'Richart 高利數位', type: 'asset', category: '高利數位帳戶' },
                     { id: 'acc_3', name: '富邦證券交割戶', type: 'asset', category: '證券交割戶' },
-                    { id: 'acc_4', name: '玉山信用卡未繳', type: 'liability', category: '信用卡帳單' }
+                    { id: 'acc_4', name: '玉山信用卡帳單', type: 'liability', category: '信用卡帳單' }
                 ];
+                state.balances = {};
+                const sampleFlows = [
+                    { acc_1: 125000, acc_2: 300000, acc_3: 48000, acc_4: 22000 },
+                    { acc_1: 138000, acc_2: 310000, acc_3: 52000, acc_4: 19500 },
+                    { acc_1: 131000, acc_2: 325000, acc_3: 45000, acc_4: 28000 },
+                    { acc_1: 149000, acc_2: 340000, acc_3: 61000, acc_4: 18000 },
+                    { acc_1: 162000, acc_2: 355000, acc_3: 55000, acc_4: 24500 },
+                    { acc_1: 178000, acc_2: 370000, acc_3: 68000, acc_4: 21000 }
+                ];
+                keys.forEach((mk, idx) => {
+                    state.balances[mk] = sampleFlows[idx] || sampleFlows[sampleFlows.length - 1];
+                });
 
-                state.balances = {
-                    [m2]: { acc_1: 145000, acc_2: 300000, acc_3: 52000, acc_4: 24000 },
-                    [m1]: { acc_1: 158000, acc_2: 315000, acc_3: 64000, acc_4: 19500 },
-                    [m0]: { acc_1: 172000, acc_2: 330000, acc_3: 78500, acc_4: 16200 }
-                };
-
-                state.memos[m0] = '・保費/稅金：下週扣款汽車強制險 3,200 元\n・加碼投資：發薪日定期定額轉入 00685L';
-
+                state.memos[keys[keys.length - 1]] = '・保費/稅金：月底前繳交汽車保險費 16,500\n・加碼投資：預留 30,000 逢低買進 ETF';
                 state.stocks = [
-                    { id: 'stk_1', symbol: '00685L', name: '群益臺灣加權正2', currency: 'TWD', shares: 25000, avgCost: 6.10, lastPrice: 6.80, dividendsReceived: 0 },
-                    { id: 'stk_2', symbol: '00878', name: '國泰永續高股息', currency: 'TWD', shares: 10000, avgCost: 21.80, lastPrice: 22.45, dividendsReceived: 18500 },
-                    { id: 'stk_3', symbol: 'AAOI', name: 'Applied Optoelectronics', currency: 'USD', shares: 120, avgCost: 26.50, lastPrice: 32.93, dividendsReceived: 0 }
+                    { id: 'stk_1', symbol: '00685L', name: '群益臺灣加權正2', currency: 'TWD', shares: 15000, cost: 5.95, price: 6.80, dividend: 0 },
+                    { id: 'stk_2', symbol: '00878', name: '國泰永續高股息', currency: 'TWD', shares: 8000, cost: 20.80, price: 22.45, dividend: 14800 },
+                    { id: 'stk_3', symbol: 'AAOI', name: 'Applied Optoelectronics', currency: 'USD', shares: 120, cost: 26.50, price: 32.93, dividend: 0 }
                 ];
-
                 state.snapshots = [
-                    { id: 'snap_1', dateLabel: `${m2}-28`, stockMarketValueTwd: 462000, totalDividendsTwd: 12000, totalWithDivTwd: 474000 },
-                    { id: 'snap_2', dateLabel: `${m1}-28`, stockMarketValueTwd: 495000, totalDividendsTwd: 15500, totalWithDivTwd: 510500 },
-                    { id: 'snap_3', dateLabel: `${m0}-15`, stockMarketValueTwd: 523000, totalDividendsTwd: 18500, totalWithDivTwd: 541500 }
+                    { id: 'snap_1', date: `${keys[2]}-28`, marketTwd: 342000, withDivTwd: 350000 },
+                    { id: 'snap_2', date: `${keys[3]}-28`, marketTwd: 368000, withDivTwd: 379000 },
+                    { id: 'snap_3', date: `${keys[4]}-28`, marketTwd: 389000, withDivTwd: 403800 },
+                    { id: 'snap_4', date: `${keys[5]}-23`, marketTwd: 410046, withDivTwd: 424846 }
                 ];
-
                 saveState();
-                renderMemo();
-                renderSummary();
-                renderAccountList();
-                renderStockPortfolio();
-                renderAssetSnapshotsChart();
-                renderTrendCharts();
-                showToast('✨ 已載入多月範例資料');
+                renderAccountsTab();
+                showToast('✨ 已載入多月範例帳本資料');
             }
 
             function openClearConfirmModal() {
@@ -2026,39 +2130,18 @@
                 state.snapshots = [];
                 saveState();
                 closeClearConfirmModal();
-                renderMemo();
-                renderSummary();
-                renderAccountList();
-                renderStockPortfolio();
-                renderAssetSnapshotsChart();
-                renderTrendCharts();
+                renderAccountsTab();
                 showToast('已清空所有手帳資料');
             }
 
-            // ================= 分頁切換 =================
-            function switchTab(tabName) {
-                activeTab = tabName;
-                ['accounts', 'stocks', 'trends', 'settings'].forEach(t => {
-                    const sec = document.getElementById(`tab-${t}`);
-                    const nav = document.getElementById(`nav-${t}`);
-                    if (sec) sec.classList.toggle('hidden', t !== tabName);
-                    if (nav) {
-                        if (t === tabName) {
-                            nav.className = 'flex flex-col items-center justify-center py-1.5 rounded-xl text-[#7F1D1D] dark:text-[#E07A7A] bg-[#EFECE4] dark:bg-[#2E2A26] transition';
-                        } else {
-                            nav.className = 'flex flex-col items-center justify-center py-1.5 rounded-xl text-[#8C8275] hover:text-[#5C5346] transition';
-                        }
-                    }
-                });
-
-                if (tabName === 'stocks') {
-                    renderStockPortfolio();
-                    renderAssetSnapshotsChart();
-                } else if (tabName === 'trends') {
-                    renderTrendCharts();
-                } else if (tabName === 'settings') {
-                    updateAutoBackupUI();
-                }
+            function init() {
+                loadState();
+                applyTheme();
+                applyCycleDefaultMonth();
+                populateCycleStartDayOptions();
+                renderAccountsTab();
+                updateAutoBackupUI();
+                checkAndRunMonthEndAutoBackup();
             }
 
             window.app = {
@@ -2068,6 +2151,8 @@
                 copyPreviousMonthBalances,
                 saveMonthlyMemo,
                 appendMemoTag,
+                toggleAccountReorder,
+                moveAccountOrder,
                 openBalanceDrawer,
                 closeBalanceDrawer,
                 editCurrentDrawerAccount,
@@ -2085,9 +2170,9 @@
                 openStockModal,
                 closeStockModal,
                 fetchQuoteForModal,
-                refreshAllStockQuotes,
                 saveStockHolding,
                 deleteStock,
+                refreshAllStockQuotes,
                 recordStockSnapshot,
                 setSnapshotRange,
                 toggleSnapshotHistory,
@@ -2095,6 +2180,7 @@
                 openFxModal,
                 closeFxModal,
                 saveFxRate,
+                setCycleStartDay,
                 exportJSON,
                 exportCSV,
                 importJSON,
@@ -2107,20 +2193,6 @@
                 closeClearConfirmModal,
                 confirmClearAllData
             };
-
-            function init() {
-                loadState();
-                applyTheme();
-                updateMonthLabel();
-                renderMemo();
-                renderSummary();
-                renderAccountList();
-                renderStockPortfolio();
-                renderAssetSnapshotsChart();
-                renderTrendCharts();
-                updateAutoBackupUI();
-                checkAndRunAutoBackup();
-            }
 
             if (document.readyState === 'loading') {
                 document.addEventListener('DOMContentLoaded', init);
